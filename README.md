@@ -8,7 +8,6 @@
 Users share their favorite music by Youtube link and write their comment for it. Video shows on the page with **Youtube Player API** for others looking. 
 
 Users on the WoWSong can like the post, leave their comment on the post, and follow the author. The author can edit, delete the post. All actions above are stored in **MySQL database** and all of the information can be seen by designed **RESTful APIs**.
-<div style="width:100%;height:0;padding-bottom:63%;position:relative;"><iframe src="https://giphy.com/embed/c6WrK4jrngzo0PW9x2" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div><p><a href="https://giphy.com/gifs/c6WrK4jrngzo0PW9x2">via GIPHY</a></p>
 
 
 ## Original Idea - Realtime Mutil-User Radio Station
@@ -17,9 +16,11 @@ All posts can be built to a playlist, users can not only listen to playlist alon
 Demo - Open and Join a radio station
 1. Left screen is radio master to open a new radio station
 2. Right screen is a radio client join a exist radio station
+
 ![Radio1](https://user-images.githubusercontent.com/29995663/58114212-dc1e7e00-7c29-11e9-8c41-9849d50d0d72.gif)
 
 Demo - Radio master (left screen) broadcast content to client(right screen) synchronously
+
 ![Radio2](https://user-images.githubusercontent.com/29995663/58114253-fc4e3d00-7c29-11e9-8755-f8a5670e5054.gif)
 
 
@@ -28,22 +29,51 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
     Test password: testpwd1234
 
 ## Tech Stacks and Architecture
+
+![Backend Architecture](https://user-images.githubusercontent.com/29995663/58113722-c2306b80-7c28-11e9-9eeb-94cb31b4b78a.png)
+
 * Designed RESTful APIs for the client to communicate with the Backend service.
 * Built real-time multi-user radio station by Socket.IO.
 * Used Session with Redis to prevent video views cheating.
 * Normalized database, added Transaction and added Connection Pool on database query.
 * Used ORM (Sequelize) design to enhance the readability of code and also prevent SQL injection.
 * Stored users' headshot and video snapshot in AWS S3  for reducing storage costs.
+* Used Nginx for reverse Proxy server 
 * Third-Party APIs:
     1. Supports Facebook / Google Login
     2. Detects abusive traffic with reCAPTCHA API
     3. Sends member validation mail with Gmail API
     4. Supports YouTube Player API on browser
     5. Gets video information from YouTube Data API
-<img width="792" alt="Backend Architecture" src="https://user-images.githubusercontent.com/29995663/58113722-c2306b80-7c28-11e9-9eeb-94cb31b4b78a.png">
+    6. Support Facebook Sharing
+    7. Follow Google coding style
 
 ## Database Schema
 ![Database structure](https://user-images.githubusercontent.com/29995663/58114694-e4c38400-7c2a-11e9-9b63-c35f2870a8ae.png)
+
+###Database Normalization
+* member table (FK: id)
+    1. One member has many posts
+    2. One member can like many posts (many to many rule see member_like table)
+    3. One member follows many members
+    4. One member have many comments
+
+* post table(FK: id, PK1: member_account)
+    1. One post belongs to a member
+    2. One post have many comments
+    3. One post have many likes
+
+* member_like table (FK: id, PK1: post_id, PK2: member_account)
+    1. One member belongs to many member_like 
+    2. One post belongs to many member_like 
+
+* comment table(FK: id, PK1: post_id, PK2: member_account)
+    2. One post have many comments
+    3. One post have many likes
+
+* follow table(FK: id, PK1: acoount, PK2: follow_account)
+    2. One post have many comments
+    3. One post have many likes
 
 # WoWSong-API-Doc
 
