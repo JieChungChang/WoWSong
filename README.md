@@ -15,8 +15,8 @@ Users on the WoWSong can like the post, leave their comment on the post, and fol
 All posts can be built to a playlist, users can not only listen to playlist alone but open radio station and listen to a playlist with others. In the radio station, song broadcast to every client's browser synchronously by using the **Socket.IO** library.
 
 Demo - Open and Join a radio station
-Left screen is radio master to open a new radio station
-Right screen is a radio client join a exist radio station
+1. Left screen is radio master to open a new radio station
+2. Right screen is a radio client join a exist radio station
 ![Radio1](https://user-images.githubusercontent.com/29995663/58114212-dc1e7e00-7c29-11e9-8c41-9849d50d0d72.gif)
 
 Demo - Radio master (left screen) broadcast content to client(right screen) synchronously
@@ -44,3 +44,15 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 
 ## Database Schema
 ![Database structure](https://user-images.githubusercontent.com/29995663/58114694-e4c38400-7c2a-11e9-9b63-c35f2870a8ae.png)
+
+# WoWSong-API-Doc
+
+### Host Name
+
+obeobeko.j-zone.xyz
+
+### API Version
+
+1.0
+
+----
