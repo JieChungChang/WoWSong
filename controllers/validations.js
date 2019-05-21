@@ -116,7 +116,17 @@ validations.signupValidate = function signupValidate(memberInfo) {
             information: {
                 signupResult: false,
                 status: 1,
-                msg: 'Account 資料型態不正確'
+                msg: '帳號資料型態不正確'
+            }
+        };
+    }
+    if (escape(account).indexOf('%u') !== -1) {
+        return {
+            result: false,
+            information: {
+                signupResult: false,
+                status: 1,
+                msg: '帳號不能包含任何中文'
             }
         };
     }
@@ -189,13 +199,13 @@ validations.signupValidate = function signupValidate(memberInfo) {
         };
     }
 
-    if ( account.length > 25 || account.length < 6 ) {
+    if ( account.length > 15 || account.length < 6 ) {
         return {
             result: false,
             information: {
                 signupResult: false,
                 status: 1,
-                msg: '帳號長度必須超過 6 個字或是少於 25 個字'
+                msg: '帳號長度必須超過 6 個字或是少於 15 個字'
             }
         };
     }
@@ -305,17 +315,26 @@ validations.nativesigninValidate = function nativesigninValidate(memberInfo) {
     }
 
     // 判斷
-    if ( account.length > 25 || account.length < 6 ) {
+    if ( account.length > 15 || account.length < 6 ) {
         return {
             result: false,
             information: {
                 signinResult: false,
                 status: 0,
-                msg: '帳號長度必須超過 6 個字或是少於 25 個字'
+                msg: '帳號長度必須超過 6 個字或是少於 15 個字'
             }
         };
     }
-
+    if (escape(account).indexOf('%u') !== -1) {
+        return {
+            result: false,
+            information: {
+                signupResult: false,
+                status: 1,
+                msg: '帳號不能包含任何中文'
+            }
+        };
+    }
     const passwordValidateRule = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9!@#$%^&]{6,20})$/;
     const passwordValidation = password.search( passwordValidateRule );
     if ( passwordValidation === -1 ) {
