@@ -191,7 +191,7 @@ describe('測試 驗證更新基本資料 函數', ()=> {
         expect(res.statusCode).to.equal(200);
         expect(res.information.updateResult).to.equal(false);
         expect(res.information.type).to.equal(1);
-        expect(res.information.message).to.equal('帳號長度必須超過 6 個字或是少於 25 個字');
+        expect(res.information.message).to.equal('帳號長度必須超過 6 個字或是少於 15 個字');
     });
 
     it('驗證 introduction 長度', ()=> {
@@ -261,7 +261,7 @@ describe('測試 驗證 nativesignin 函數', ()=> {
         expect(res.result).to.equal(false);
         expect(res.information.signinResult).to.equal(false);
         expect(res.information.status).to.equal(0);
-        expect(res.information.msg).to.equal('帳號長度必須超過 6 個字或是少於 25 個字');
+        expect(res.information.msg).to.equal('帳號長度必須超過 6 個字或是少於 15 個字');
     });
 
     it('驗證 account 資料型態', ()=> {
@@ -276,7 +276,7 @@ describe('測試 驗證 nativesignin 函數', ()=> {
         expect(res.result).to.equal(false);
         expect(res.information.signinResult).to.equal(false);
         expect(res.information.status).to.equal(0);
-        expect(res.information.msg).to.equal('Account 資料型態不正確');
+        expect(res.information.msg).to.equal('帳號資料型態不正確');
     });
     it('驗證 password 資料內容', ()=> {
         const memberInfo = {
