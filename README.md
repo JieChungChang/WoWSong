@@ -20,7 +20,7 @@ All posts can be built to a playlist, users can not only listen to playlist alon
     Test account: test1234
     Test password: testpwd1234
 
-## Tech Stacks
+## Tech Stacks and Architecture
 * Designed RESTful APIs for the client to communicate with the Backend service.
 * Built real-time multi-user radio station by Socket.IO.
 * Used Session with Redis to prevent video views cheating.
@@ -33,3 +33,4 @@ All posts can be built to a playlist, users can not only listen to playlist alon
     3. Sends member validation mail with Gmail API
     4. Supports YouTube Player API on browser
     5. Gets video information from YouTube Data API
+<img width="792" alt="Backend Architecture" src="https://user-images.githubusercontent.com/29995663/58113722-c2306b80-7c28-11e9-9eeb-94cb31b4b78a.png">
