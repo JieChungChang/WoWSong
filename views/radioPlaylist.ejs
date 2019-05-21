@@ -108,12 +108,10 @@
 	</script>
 	<script>
 		// header 用
-		let postBlock = document.getElementById("member-post-block");
-		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
-		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
+		const navList1  = document.querySelectorAll('.nav-link')[1];
+		const navList2  = document.querySelectorAll('.nav-link')[2];
 
 		document.addEventListener("DOMContentLoaded", function(event) {
-
 		    let accessToken = getCookie("access_token");
 		    if (accessToken) {
 		    	isLogin(accessToken);
@@ -150,11 +148,10 @@
 				if (res.result){
 					console.log(res.memberData);
 
-			    	navList1.setAttribute("href", "/post/createPost.html");
-			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+					navList1.setAttribute("href", "/post/createPost.html");
+					navList1.innerText = "發表";
 
-			    	navList1.innerText = "發表";
-			    	navList2.innerText = res.memberData.name;
+					addDropdownList(res.memberData.name, res.memberData.account, navList2 );
 
 			    	//是否有追蹤
 			    	let account = document.getElementById("memberAccount").innerText;
@@ -471,7 +468,8 @@
 
 			videoList.appendChild(newDiv);
 		}
-    </script>
+	</script>
+	<script src="../../public/js/renderNavList.js"></script>
     <script src="../../public/js/chat.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>

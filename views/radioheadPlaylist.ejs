@@ -115,7 +115,32 @@
 	</script>
 	<script>
 		let socket;
+		
 
+		// header 用
+		const navList1  = document.querySelectorAll('.nav-link')[1];
+		const navList2  = document.querySelectorAll('.nav-link')[2];
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+			let accessToken = getCookie("access_token");
+			if (accessToken) {
+				isLogin(accessToken);
+
+			} else { //這一段在這個頁面應該是不需要，前一個頁面已經過濾掉那些非台主帳號的 Token
+				navList1.setAttribute("href", "/member/signin.html");
+				navList2.setAttribute("href", "/member/signup.html");
+
+				navList1.innerText = "登入";
+				navList2.innerText = "註冊";
+
+				//判斷完有沒有登入後才做 socket io 連線
+				socket = io("/radio");
+				socketConfig(socket)
+				//End
+			}
+
+			renderHeader();
+		});
 		function getCookie(name) {
 			let cookie = {};
 			document.cookie.split(';').forEach(function(el) {
@@ -142,11 +167,11 @@
 				if (res.result){
 					console.log(res.memberData);
 
-			    	navList1.setAttribute("href", "/post/createPost.html");
-			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+					navList1.setAttribute("href", "/post/createPost.html");
+					navList1.innerText = '發表';
+			    	// navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
 
-			    	navList1.innerText = "發表";
-			    	navList2.innerText = res.memberData.name;
+			    	addDropdownList(res.memberData.name, res.memberData.account, navList2 );
 
 				} else {
 					console.log(res.message);
@@ -163,34 +188,6 @@
 
 			});
 		}
-
-
-		// header 用
-		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
-		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
-
-		document.addEventListener("DOMContentLoaded", function(event) {
-
-		    let accessToken = getCookie("access_token");
-		    if (accessToken) {
-		    	isLogin(accessToken);
-
-		    } else { //這一段在這個頁面應該是不需要，前一個頁面已經過濾掉那些非台主帳號的 Token
-		    	navList1.setAttribute("href", "/member/signin.html");
-		    	navList2.setAttribute("href", "/member/signup.html");
-
-		    	navList1.innerText = "登入";
-		    	navList2.innerText = "註冊";
-
-		    	//判斷完有沒有登入後才做 socket io 連線
-		    	socket = io("/radio");
-		    	socketConfig(socket)
-		    	//End
-		    }
-
-		    renderHeader();
-		});
-
 		// header 用 end
 
 		//Radiohead socket io 連上線後要設定的 event
@@ -449,7 +446,8 @@
 			videoList.appendChild(newA);
 		}
 		
-    </script>
+	</script>
+	<script src="../../public/js/renderNavList.js"></script>
     <script src="../../public/js/chat.js"></script>
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
