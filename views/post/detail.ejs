@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="google-signin-client_id" content="288950503271-lcguojausmbr9bosbces66ub0ua6ig2i.apps.googleusercontent.com">
+	<meta property="og:image"         content="<%=postDetailData.picture%>" />
+	<meta property="og:url"           content="https://obeobeko.j-zone.xyz/post/details?postid=<%=postDetailData.id%>" />
+	<meta property="og:type"          content="website" />
+	<meta property="og:title"         content="<%= postDetailData.member.name+'的 ObeObeKo 謳歌 - '+postDetailData.title %>" />
+	<meta property="og:description"   content="<%= postDetailData.content %>" />
+	<meta property="fb:app_id" content="352041075417666" />
+	<title>ObeObeKo 謳歌 - <%=postDetailData.title%></title>
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css" integrity="sha384-50oBUHEmvpQ+1lW4y57PTFmhCaXp0ML5d60M1M7uH2+nqUivzIebhndOJK28anvf" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="../../public/css/new-header.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/detail.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/detail-body.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/generic.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<%- include('../layout/header.ejs') %>
+	<div class="body">
+		<div class="header">
+			<div class="img-block">
+				<img src="<%= postDetailData.member.picture %>" />
+			</div>
+			<div class="member-info-block">
+				<div class="row-1">
+					<h2><%= postDetailData.member.name %></h2>
+					<% if(postDetailData.viewfrom === "self") {%>
+					<button class="btn btn-primary obe-btn" onclick="location.href = '/post/createPost.html';" >發表謳歌</button>
+					<% } else if(postDetailData.viewfrom === "others") {%>
+					<button id="followMemberBtn" class="btn btn-primary obe-btn" onclick="followMember()">追蹤</button>
+					<% } %>
+				</div>
+				<div class="row-2">
+					<h3><a id="memberAccount" href="/post/member?account=<%=postDetailData.member.account%>"><%= postDetailData.member.account %></a></h3>
+				</div>
+				<div class="row-3">
+					<span id="postCount">0則貼文</span>
+					<span id="followCount">0位追蹤</span>
+					<span id="followerCount">0位粉絲</span>
+				</div>
+			</div>
+		</div>
+		<div id="videoInfo">
+			<h2><%= postDetailData.content %></h2>
+			<p><%= postDetailData.time %></p>
+			<a id="videoImg" onclick="play()" style="display: block; margin: auto; width: 640px;"><img style="margin: auto; width: 640px;" src="<%=postDetailData.picture%>"></a>
+			<div id="ytplayer"></div>
+		</div>
+		<div id="socialInfo">
+			<p id="likeCount"></p>
+			<p id="viewTimes"><%=postDetailData.view_times%> 次觀看次數</p>
+			<h3><%= postDetailData.title%></h3>
+			<input id="postId" type="text" name="post_id" value="<%=postDetailData.id%>" hidden>
+		</div>
+		<div id="videoCommentBlock">
+			<% for(let i=0; i<postDetailData.comment.length; i++ ) {%>
+			<p><a href="/post/member?account=<%=postDetailData.comment[i].member_account%>">@<%=postDetailData.comment[i].member_account%></a>  <%=postDetailData.comment[i].comment%></p>
+			<%}%>
+		</div>
+
+		<% if(postDetailData.viewfrom !== "guest") {%> 
+			<div id="postLikeblock">
+				<div id ="sendLikeBtn" class="<%=postDetailData.isLike?'islike':'dislike'%>" onclick="sendLikPost()"><i class="fas fa-heart fa-2x" style="display: block; text-align: left;"></i></div>
+				<div></div>
+				<a class="button" href="https://www.facebook.com/sharer/sharer.php?app_id=352041075417666&sdk=joey&u=https://obeobeko.j-zone.xyz/post/details?postid=<%=postDetailData.id%>&display=popup&ref=plugin&src=share_button" onclick="return !window.open(this.href, 'Facebook', 'width=640,height=580')"><i class="fab fa-facebook-f fa-2x" style="display: block; text-align: right;"></i></a>
+				<a href="javascript: return false;" onclick="document.getElementById('settingBtn').click()"><i class="fas fa-cog fa-2x" style="display: block; text-align: right;"></i></a>
+				<button type="button" id="settingBtn" class="btn btn-primary obe-btn" data-toggle="modal" data-target="#exampleModal" style="display:none;">設定</button>
+			</div>
+			<div id="commentInputBlock">
+				<input placeholder="留言... ..." id="videoComment" type="text" name="commetInput">
+				<button onclick="sendComment()"class="btn btn-primary obe-btn">送出</button>
+			</div>
+		<% } %>
+	</div>
+		<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		  <div class="modal-dialog" role="document">
+		    <div class="modal-content">
+		      <div class="modal-header">
+		        <h5 class="modal-title" id="exampleModalLabel">設定</h5>
+		        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		          <span aria-hidden="true">&times;</span>
+		        </button>
+		      </div>
+		      <div class="modal-body">
+		      	<% if( postDetailData.viewfrom ==='self') {%>
+		      	<button type="button" class="btn btn-primary btn-lg btn-block obe-btn" onclick="location.href='/post/modify?postid=<%=postDetailData.id%>';">編輯謳歌</button>
+		       	<button type="button" class="btn btn-danger btn-lg btn-block" onclick="delPost(<%=postDetailData.id%>)" style="margin: 5px;">刪除謳歌</button>
+		       	<% } else { %>
+		       	<button type="button" class="btn btn-primary btn-lg btn-block obe-btn">檢舉內容</button>
+		       	<%}%>
+		      </div>
+		      <div class="modal-footer">
+		        <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+		      </div>
+		    </div>
+		  </div>
+		</div>
+	<script>
+		const post_id='<%=postDetailData.id%>';
+		const video_id='<%=postDetailData.video_id%>';
+		const member_account='<%=postDetailData.member.account%>';
+	</script>
+	<script src="../../public/js/postDeatil.js"></script>>
+	<script src="../../public/js/renderMemberInfo.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<script type="text/javascript">
+		$('#myModal').on('shown.bs.modal', function () {
+		$('#myInput').trigger('focus')
+	})
+	</script>
+</body>

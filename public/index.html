@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>WoWsong - 首頁</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="css/new-header.css" rel="stylesheet">
+	<link href="css/generic.css" rel="stylesheet">
+	<link href="css/post.css" rel="stylesheet">
+	<link href="css/homepage.css" rel="stylesheet">
+	<script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+	<div id="Navbar-container" class="fixed-top">
+		<nav class="navbar navbar-expand-lg navbar-light bg-light" style="width: 80%; margin: 0 auto;">
+				<a class="navbar-brand" href="./" style="color:#6cc5d9;">
+					<img src="img/logo_blue_65.png" width="30" height="30" class="d-inline-block align-top" alt="">
+					謳歌
+				</a>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+			<div class="collapse navbar-collapse" id="navbarNavDropdown">
+				<ul class="navbar-nav ml-auto">
+					<li class="nav-item active">
+						<a class="nav-link" href="./" style="color:#6cc5d9;">首頁 <span class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/member/signin.html">登入</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/member/signup.html">註冊</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+	<div class="banner"></div>	
+	<div class="banner-heading">
+			<h1>WoWsong</h1>
+			<hr class="small" style="width:160px;">
+			<span class="banner-subheading">分享音樂！我們一起 Chill！</span>
+			<div>
+				<a id="radioRoomToggle" onclick="toggleRommList()">
+						<p id="radioRoomInfo"> 0 個電台熱播中，一起哈</p>
+						<img id="toggleImg" src="img/arrow-down.png">
+				</a>
+		</div>
+	</div>
+	<!-- 輪播功能 -->
+	<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+
+	  <div class="carousel-inner"></div>
+
+	  <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+	    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+	    <span class="sr-only">Previous</span>
+	  </a>
+
+	  <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+	    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+	    <span class="sr-only">Next</span>
+	  </a>
+
+	</div>
+	<!-- 輪播功能 End -->
+	<br>
+	<br>
+	<div id="member-post-block">
+		<h2>最新分享</h2>
+	</div>
+	<script src="js/homepage/radioStationCarousel.js"></script>
+	<script src="js/homepage/homepage.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

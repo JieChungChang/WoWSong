@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta property="og:image"         content="<%=memberData.picture%>" />
+	<meta property="og:url"           content="https://obeobeKo.j-zone.xyz/playlist/<%=memberData.account%>/radio" />
+	<meta property="og:type"          content="website" />
+	<meta property="og:title"         content="<%= 'ObeObeKo 謳歌電台 - '+memberData.name %>" />
+	<meta property="og:description"   content="
+		<% memberData.posts.forEach((post)=>{ %>
+			<%= JSON.stringify(post.title)%>	
+		<% }) %>
+	" />
+	<meta property="fb:app_id" content="352041075417666" />
+	<title>ObeObeKo 謳歌 - 電台司令</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<link href="../../public/css/header.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/detail.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+	<link href="../../public/css/generic.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/live-container.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/chat.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<div id="fb-root"></div>
+	<script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v3.2"></script>
+	<%- include('./layout/header.ejs') %>
+	<div class="header">
+		<div class="img-block">
+			<img src="<%= memberData.picture %>"  />
+		</div>
+		<div class="member-info-block">
+			<div class="row-1">
+				<h2><%= "Radiohead - " + memberData.name %></h2>
+				<% if(memberData.viewfrom === "self") {%>
+				<button onclick="location.href = '/playlist/<%=memberData.account%>/post'" >結束電台</button>
+				<% } else if(memberData.viewfrom === "others") {%>
+				<button>追蹤</button>
+				<% } %>
+			</div>
+			<div class="row-2">
+				<h3><a id="memberAccount" href="/post/member?account=<%=memberData.account%>"><%= memberData.account %></a></h3>
+			</div>
+			<div class="row-3">
+				<span id="postCount">0則貼文</span>
+				<span id="followCount">0位追蹤</span>
+				<span id="followerCount">0位粉絲</span>
+			</div>
+		</div>
+	</div>
+	</br>
+	</br>
+	<!-- 聊天室視窗 -->
+	<div id="live-container" style="display: flex; flex-direction:column; align-items: center;">
+		<div class="container bootstrap snippet">
+
+			<div id="live-container-top" style="display: flex; align-items: flex-end;">
+		
+				<div id="live-container-top-left" style="display: flex; flex-direction:column;" >
+					<div style="display: flex; flex-direction:row; justify-content: space-between;">
+						<input placeholder="Youtube 連結" id="youtube_url" type="text" name="youtube_url" maxlength="191">
+						<button  onclick="checkURL()">新增影片</button> 
+					</div>
+					<!-- <a id="mainPlayTag" onclick="mainPlay()"> -->
+					<div id="player"></div>
+					<!-- </a> -->
+				</div>
+
+				<div id="live-container-top-right" style="margin-left: 10px; width:42%">
+					<h3>播放清單</h3>
+					<div id="videoList" style="height: 390px; padding: 5px; overflow: auto; background-color: #efefef;">
+					<% for (var i=0; i<memberData.posts.length; i++) {%>
+						<a onclick="playThis('<%=memberData.posts[i].video_id%>')">
+							<div style="margin-bottom: 10px;">
+								<img src="https://img.youtube.com/vi/<%= memberData.posts[i].video_id %>/hqdefault.jpg" width="160px" />	
+							    <h5><%= memberData.posts[i].title %></h5>
+						    </div>
+						</a>
+					<% } %>
+					</div>
+				</div>
+
+			</div>
+
+		</div>
+		</br>
+		</br>
+		<div class="container bootstrap snippet">
+			<div id="chat-room-heading"><h3>電台即時聊天室</h3><h5 id="totalClient">0 人在線上</h5></div>
+		    <div class="row">
+		    	<div class="col-md-12 bg-white ">
+		            <div class="chat-message">
+		                <ul id="messageBox" class="chat"></ul>
+		            </div>
+		            <div class="chat-box bg-white">
+		            	<div class="input-group">
+		            		<input id="input-content" class="form-control border no-shadow no-rounded" placeholder="在此處輸入訊息" onkeyup="sendMessageByEnter();">
+		            		<span class="input-group-btn">
+		            			<button id="send-button" class="btn btn-success no-rounded" type="button">送出</button>
+		            		</span>
+		            	</div>
+		            </div>            
+				</div>        
+			</div>
+		</div>
+	</div>
+	<!-- 聊天室視窗 End -->
+	<script>(function(d, s, id) {
+		var js, fjs = d.getElementsByTagName(s)[0];
+			if (d.getElementById(id)) return;
+			js = d.createElement(s); js.id = id;
+			js.src = "https://connect.facebook.net/en_US/sdk.js#xfbml=1&version=v3.0";
+			fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+	</script>
+	<script>
+		let socket;
+
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		function isLogin(cookie) {
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				if (res.result){
+					console.log(res.memberData);
+
+			    	navList1.setAttribute("href", "/post/createPost.html");
+			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+
+			    	navList1.innerText = "發表";
+			    	navList2.innerText = res.memberData.name;
+
+				} else {
+					console.log(res.message);
+				}
+
+				//判斷完有沒有登入後才做 socket io 連線
+				socket = io("/radio");
+	    		socketConfig(socket)
+	    		//End
+
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+
+			});
+		}
+
+
+		// header 用
+		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
+		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+
+		    let accessToken = getCookie("access_token");
+		    if (accessToken) {
+		    	isLogin(accessToken);
+
+		    } else { //這一段在這個頁面應該是不需要，前一個頁面已經過濾掉那些非台主帳號的 Token
+		    	navList1.setAttribute("href", "/member/signin.html");
+		    	navList2.setAttribute("href", "/member/signup.html");
+
+		    	navList1.innerText = "登入";
+		    	navList2.innerText = "註冊";
+
+		    	//判斷完有沒有登入後才做 socket io 連線
+		    	socket = io("/radio");
+		    	socketConfig(socket)
+		    	//End
+		    }
+
+		    renderHeader();
+		});
+
+		// header 用 end
+
+		//Radiohead socket io 連上線後要設定的 event
+		function socketConfig(socket){
+			socket.on('connect', function () {
+				let socketid = socket.id;
+				console.log("My socket id is "+socketid);
+
+				socket.emit('join',socketid);
+			})
+
+			socket.on('newJoin',(socketid)=>{
+				console.log("Newby"+socketid);
+				let currentVideo = player.getVideoData().video_id;
+				let currentTime = player.getCurrentTime();
+				console.log(currentVideo);
+				console.log(currentTime);
+				socket.emit('sendCurrentPlayerStatus', socketid, currentVideo, currentTime, playList);
+			});
+
+			// socket 有連線成功才讓 messagebutton可以被執行
+			let sendBtn = document.getElementById("send-button"); 
+			sendBtn.addEventListener("click", function (e) {
+				let inputContent = document.getElementById("input-content").value;
+	    		if(inputContent !== ""){
+	    			socket.emit('rhSendMessage',inputContent);
+	    			document.getElementById("input-content").value = "";
+	    		}
+		    });
+
+		    //監聽新 Client 加入房間事件
+		    socket.on('joinAnnounce',(socketid,totalClient)=>{
+		    	console.log("歡迎 "+socketid+" 加入聊天室");
+		    	document.getElementById("totalClient").innerText = totalClient+" 人在線上";
+				addMessage("system", "radiohead", "歡迎 "+socketid+" 加入聊天室");
+		    })
+
+		    //監聽 Client 離開房間事件
+		    socket.on('leaveAnnounce',(socketid,totalClient)=>{
+		    	console.log(socketid+" 離開聊天室");
+		    	document.getElementById("totalClient").innerText = totalClient+" 人在線上";
+				addMessage("system", "radiohead", socketid+" 離開聊天室");
+		    })
+
+			//監聽一般訊息事件
+			socket.on('normalMessage', (sendID,message)=>{
+			    console.log(sendID+"說： "+message);
+				addMessage(sendID, socket.id, message);
+			});
+
+			//監聽電台司令訊息事件
+			socket.on('radioheadMessage', (message)=>{
+			    console.log("電台司令說： "+message);
+				addMessage("radiohead", "radiohead", message);
+			});
+
+			//監聽 System Announce 事件
+		    socket.on('systemAnnounce',(message)=>{
+		    	console.log("系統 "+message);
+				addMessage("system", "radiohead", message);
+		    })
+		}
+	</script>
+	<script src="../../public/js/renderMemberInfo.js"></script>
+    <script>
+		let playList = <%- JSON.stringify(memberData.posts) %>;
+		let nowPlay = 0;
+
+		// 2. This code loads the IFrame Player API code asynchronously.
+		var tag = document.createElement('script');
+
+		tag.src = "https://www.youtube.com/iframe_api";
+		var firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+		// 3. This function creates an <iframe> (and YouTube player)
+		//    after the API code downloads.
+		var player;
+		function onYouTubeIframeAPIReady() {
+			player = new YT.Player('player', {
+				height: '390',
+				width: '640',
+				videoId: playList[nowPlay].video_id,
+				events: {
+					'onReady': onPlayerReady,
+					'onStateChange': onPlayerStateChange
+				}
+			});
+		}
+
+		// 4. The API will call this function when the video player is ready.
+		function onPlayerReady(event) {
+			fetch(`/api/1.0/view/startview?video_id=${playList[nowPlay].video_id}`)
+			.then(function(response) {
+				return response.json();
+			})
+			.then(function(myJson) {
+				console.log(myJson);
+				if (myJson.result){
+					viewsTimmer(player.getDuration());
+				}
+			});
+			event.target.playVideo();
+		}
+
+		// 5. The API calls this function when the player's state changes.
+		//    The function indicates that when playing a video (state=1),
+		//    the player should play for six seconds and then stop.
+		function onPlayerStateChange(event) {
+			if (event.data === YT.PlayerState.ENDED) { //影片播完會發生
+				nowPlay +=1;
+				if ( nowPlay >= playList.length || nowPlay < 0 ){
+					nowPlay = 0;
+				}
+				// player.loadVideoById(playList[nowPlay].video_id);
+				mainPlay(playList[nowPlay].video_id);
+			} 
+
+			if (event.data === YT.PlayerState.PAUSED) { //影片暫停
+				console.log("stop");
+				socket.emit('videoStop');
+			}
+
+			if (event.data === YT.PlayerState.PLAYING) { //影片播放
+				let currentVideo = player.getVideoData().video_id;
+				let currentTime = player.getCurrentTime();
+				console.log("play");
+				socket.emit('videoPlay', currentVideo, currentTime);
+			}
+		}
+
+		function mainPlay(video_id) {
+			//socket io test 
+			socket.emit('nextVedio', video_id);
+			//socket io test end
+			player.loadVideoById(video_id);
+
+			//增加播放次數
+			fetch(`/api/1.0/view/startview?video_id=${video_id}`)
+			.then(function(response) {
+				return response.json();
+			})
+			.then(function(myJson) {
+				console.log(myJson);
+				if (myJson.result){
+					viewsTimmer(myJson.duration);
+				}
+			});
+			//增加播放次數 End
+		}
+
+		//點擊播放
+		function playThis(video_id){
+			// let mainPlayTag = document.getElementsByTagName 
+			nowPlay = playList.findIndex(p => p.video_id === video_id);
+			// player.loadVideoById(playList[nowPlay].video_id);
+			mainPlay(video_id);
+		}
+
+		function viewsTimmer(duration){
+			console.log(duration);
+			setTimeout("addViews('"+nowPlay+"')", duration*1000*3/4);	
+		}
+
+		function addViews(nowPlay){
+			// console.log(nowPlay);
+			if (playList[nowPlay].post_id!==""){
+
+				let requestData = {
+					"post_id":  playList[nowPlay].post_id,
+					"video_id": playList[nowPlay].video_id
+				}
+				let data = JSON.stringify(requestData);
+
+				let xhr = new XMLHttpRequest();
+				xhr.open("POST", "/api/1.0/view/addView", false);
+				xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+				xhr.onreadystatechange = function () {
+				    if (xhr.readyState === 4 && xhr.status === 200) {
+				        let result = JSON.parse(xhr.responseText).result;
+				        console.log(result);
+				    }
+				};
+
+				xhr.send(data);
+
+			}
+
+		}
+
+		function checkURL(){
+			let urlText = document.getElementById("youtube_url").value;
+			if (urlText.split('.com')[0].substr(-7) === 'youtube') {
+				let vID = urlText.split('?v=')[1].split('&')[0];
+				addNewVideo(vID);
+
+			} else {
+				console.log('Not a youtube link');
+			}
+		}
+
+		function addNewVideo(videoID){
+			let apiKey = 'AIzaSyDY8OGXugJNncRuvGZKLe6BqcgvNOEnYNw';
+			console.log(videoID);
+
+			fetch(`https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoID}&key=${apiKey}`)
+			.then(function(response) {
+				return response.json();
+			})
+			.then(function(myJson) {
+				console.log(myJson.items[0].snippet.title);
+
+				if (myJson.items[0]){
+					urlText = document.getElementById("youtube_url").value = "";
+
+					let videoInfo = {
+						picture: "123",
+						post_id: "",
+						title: myJson.items[0].snippet.title,
+						video_id: videoID
+					}
+
+					//playlist 增加影片資料
+					playList.push(videoInfo);
+					//playlist UI 增加影片
+					createVideo(videoID, videoInfo.title);
+					//對房間所有人發送 增加影片 事件
+					socket.emit('addVideoToList', videoInfo);
+				}
+			});
+		}
+
+		function createVideo(videoID, videoTitle){
+			let videoList = document.getElementById("videoList");
+
+			let newA = document.createElement("a");
+			newA.setAttribute("onclick",`playThis("${videoID}")`);
+
+			let newDiv = document.createElement("div");
+			newDiv.setAttribute("style","margin-bottom: 10px;");
+	
+			let newImg = document.createElement("img");
+			newImg.setAttribute("src",`https://img.youtube.com/vi/${videoID}/hqdefault.jpg`);
+			newImg.setAttribute("width","160px");
+			
+			let newH5 = document.createElement("h5");
+			let newH5Text = document.createTextNode(videoTitle);
+			newH5.appendChild(newH5Text);
+			
+			newDiv.appendChild(newImg);
+			newDiv.appendChild(newH5);
+
+			newA.appendChild(newDiv);
+
+			videoList.appendChild(newA);
+		}
+		
+    </script>
+    <script src="../../public/js/chat.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</html>

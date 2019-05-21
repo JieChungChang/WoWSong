@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ObeObeKo 謳歌 - 發表謳歌</title>
+	<!-- <script type="text/javascript" src="https://www.youtube.com/iframe_api"></script> -->
+	<link href="../css/header.css" rel="stylesheet">
+	<link href="../css/create-post-body.css" rel="stylesheet">
+</head>
+<body>
+	<header class="main-header clearfix">
+		<a class="header-icon-link" href="../"><img class="header-icon" alt="ObeObeKo icon" src="../img/logo_blue_65.png">謳歌</a>
+        
+        <div class="flex-container"></div>
+
+        <ul class="navigation-list">
+         	<li><a href="../">首頁</a></li>
+            <li><a href="../member/signin.html">登入</a></li>
+            <li><a href="../member/signup.html">註冊</a></li>
+        </ul>
+	</header>
+	<div class="body">
+		<h2>發表謳歌</h2>
+		<div id="section-1">
+			<div class="section-title">
+				<a type="button" class="btn btn-primary btn-circle">1</a><h3>貼上 YOUTUBE 連結</h3>
+			</div>
+			<input placeholder="Youtube 連結" id="youtube_url" type="text" name="youtube_url" value required maxlength="191">
+			<button  onclick="checkURL()">送出 YOUTUBE 連結</button> 
+		</div> 
+		<div id="section-2" hidden>
+			<div class="section-title" >
+				<a type="button" class="btn btn-primary btn-circle">2</a><h3>影片預覽</h3>
+			</div>
+			<ul class="nav nav-tabs">
+				<li><a>影片封面</a></li>
+				<li><a>影片預覽</a></li>
+			</ul>
+			<div id="ytPlayer"></div>
+			<div id="ytImage"></div>
+		</div>
+		<div id="create_obeobeko_block">
+			<div class="section-title"></div>
+			<div id="postForm"></div>
+			<div id="sendButton"></div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		let access_token = "";
+
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
+		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
+
+
+		let ytPlayerBlock = document.getElementById("ytPlayer");
+		let ytImageBlock  = document.getElementById("ytImage");
+		let titleBlock = document.querySelector("#create_obeobeko_block .section-title");
+
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		function isLogin(cookie) {
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				if (res.result){
+					console.log(res.memberData);
+
+			    	navList1.setAttribute("href", "/post/createPost.html");
+			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+
+			    	navList1.innerText = "發表";
+			    	navList2.innerText = res.memberData.name;
+				} else {
+					console.log(res.message);
+					window.location="/member/signin.html";
+				}
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+		    access_token = getCookie("access_token");
+		   	
+		   	if (!getCookie("access_token")) { //如果連 Access Token 都沒有就導到登入頁面
+				window.location="/member/signin.html";
+
+			} else { //如果有 Access Token 先確認是不是有效的
+			   	isLogin(access_token); //用 Token 來確認 對 header處理
+			}
+		});
+
+		function checkURL(){
+			let urlText = document.getElementById("youtube_url").value;
+			if (urlText.split('.com')[0].substr(-7) === 'youtube') {
+				let vID = urlText.split('?v=')[1].split('&')[0];
+				creatPostBlock(vID);
+
+				let section2  = document.getElementById("section-2");
+				section2.hidden = false;
+
+			} else {
+				console.log('Not a youtube link');
+			}
+		}
+
+		function creatPostBlock(videoID) {
+			let postFormBlock = document.getElementById("postForm");
+			let sendButtonBlock = document.getElementById("sendButton");
+
+			//將存在內容的 Block 清空
+			let deleteBlockTarget = [ytPlayerBlock, ytImageBlock, titleBlock, postFormBlock, sendButtonBlock];
+			deleteExistContent(deleteBlockTarget);
+
+			//加影片
+			let videoHead = document.createElement("h3");
+			let videoHeadText = document.createTextNode("YOUTUBE 影片預覽");
+			videoHead.appendChild(videoHeadText);
+			ytPlayerBlock.appendChild(videoHead);
+			let ytVideoNode   = document.createElement("div");
+			ytVideoNode.setAttribute("id","player");
+			ytPlayerBlock.appendChild(ytVideoNode);
+			ytVideoNode.innerHTML=`<iframe id="ytplayer" type="text/html" width="720" height="405"
+			src="https://www.youtube.com/embed/${videoID}"
+			frameborder="0" allowfullscreen>`;
+			ytPlayerBlock.hidden = true;
+			// createYTvideoNode(videoID);
+
+			//加縮圖
+			let imageHead = document.createElement("h3");
+			let imageHeadText = document.createTextNode("YOUTUBE 封面圖");
+			imageHead.appendChild(imageHeadText);
+			ytImageBlock.appendChild(imageHead);
+			let ytImageNode   = document.createElement("img");
+			ytImageNode.setAttribute("id","obeobeko_image");
+			ytImageNode.setAttribute("name","obeobeko_image");
+			let sanpshotURL   = `https://img.youtube.com/vi/${videoID}/hqdefault.jpg` 
+			ytImageNode.setAttribute("src",sanpshotURL);
+			ytImageNode.setAttribute("style","width: 720px;");
+			ytImageBlock.appendChild(ytImageNode);
+
+			//加內容表單
+			let a3 = document.createElement("a");
+			let a3Text = document.createTextNode("3");
+			a3.appendChild(a3Text);
+			a3.setAttribute("type","button");
+			a3.setAttribute("class","btn btn-primary btn-circle");
+			titleBlock.appendChild(a3);
+
+			let formHead = document.createElement("h3");
+			let formHeadText = document.createTextNode("寫下謳歌");
+			formHead.appendChild(formHeadText);
+			titleBlock.appendChild(formHead);
+
+			let formNode = document.createElement("textarea"); 
+			formNode.setAttribute("id","obeobeko_content");
+			formNode.setAttribute("name","obeobeko_content");
+			formNode.setAttribute("placeholder","寫下謳歌... ...");
+			formNode.setAttribute("rows","5");
+			formNode.setAttribute("maxlength","1000");
+			formNode.setAttribute("required","true");
+			postFormBlock.appendChild(formNode);
+
+			//加入送出表單 button
+			let sendButton = document.createElement("button"); 
+			let sendButtonText = document.createTextNode("發表謳歌");
+			sendButton.appendChild(sendButtonText);
+			sendButton.setAttribute("onclick", `createPost("${videoID}")`);
+			sendButtonBlock.appendChild(sendButton);
+		}
+
+		function deleteExistContent(target) {
+			target.forEach((block)=> {
+				while (block.firstChild) {
+	    			block.removeChild(block.firstChild);
+				}
+			})
+		}
+
+		function createPost (videoID) {
+			access_token = getCookie("access_token");
+
+			let requestData = {
+				"video_id": videoID,
+			    "picture": '123',
+			    "content": document.getElementById("obeobeko_content").value
+			}
+
+			console.log(requestData);
+
+			let data = JSON.stringify(requestData);
+
+			let xhr = new XMLHttpRequest();
+			xhr.open("POST", "/api/1.0/post", false);
+			xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+			xhr.setRequestHeader("Authorization", "Bearer " + access_token);
+
+			xhr.onreadystatechange = function () {
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+			        let result = JSON.parse(xhr.responseText).result;
+			        console.log(result);
+					window.location="/post/member?account="+result.member_account;
+					
+			    } else if (xhr.readyState === 4 && xhr.status === 403) {
+					window.location="/member/signin.html";
+				
+				} else if (xhr.readyState === 4 && xhr.status === 400){
+					location.reload();
+
+				}
+			};
+
+			xhr.send(data);
+		}
+
+		let aTag = document.querySelectorAll(".nav-tabs a");
+		aTag.forEach(tag=>{
+			tag.addEventListener("click", function(){
+				if (tag.innerText==="影片預覽"){
+					ytImageBlock.hidden = true;
+					ytPlayerBlock.hidden = false;
+				} 
+				if (tag.innerText==="影片封面"){
+					ytImageBlock.hidden = false;
+					ytPlayerBlock.hidden = true;
+				} 
+			})
+		})
+	</script>
+</body>
+</html>

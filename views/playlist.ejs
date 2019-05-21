@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="google-signin-client_id" content="288950503271-lcguojausmbr9bosbces66ub0ua6ig2i.apps.googleusercontent.com">
+	<title>ObeObeKo 謳歌 - <%= memberData.name %></title>
+	<link href="../../public/css/header.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/detail.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+	<link href="../../public/css/generic.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/live-container.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<%- include('./layout/header.ejs') %>
+	<div class="header">
+		<div class="img-block">
+			<img src="<%= memberData.picture %>" />
+		</div>
+		<div class="member-info-block">
+			<div class="row-1">
+				<h1><%= memberData.name %></h1>
+				<% if(memberData.viewfrom === "self") {%>
+				<button onclick="location.href = '/playlist/<%= memberData.account %>/radio' ">電台司令</button>
+				<% } else if(memberData.viewfrom === 'others') {%>
+				<button id="followMemberBtn" class="btn btn-primary obe-btn" onclick="followMember()">追蹤</button>
+				<% } %>
+			</div>
+			<div class="row-2">
+				<h3><a id="memberAccount" href="/post/member?account=<%=memberData.account%>"><%= memberData.account %></a></h3>
+			</div>
+			<div class="row-3">
+				<span id="postCount">0則貼文</span>
+				<span id="followCount">0位追蹤</span>
+				<span id="followerCount">0位粉絲</span>
+			</div>
+		</div>
+	</div>
+	</br>
+	</br>
+	<div id="live-container" style="display: flex; flex-direction:column; align-items: center;">
+		<div class="container bootstrap snippet">
+			<div id="live-container-top" style="display: flex; align-items: flex-end;">
+				<div id="live-container-top-left" style="display: flex; flex-direction:column;" >
+					<div id="videoInfo">
+						<h3 id="nowPlayTitle"></h3>
+						<div id="player"></div>
+					</div>
+				</div>
+				
+				<div id="live-container-top-right" style="margin-left: 10px; width:42%">
+					<h3><%= memberData.name + "的播放清單" %></h3>
+					<div id="videoList" style="height: 390px; padding: 5px; overflow: auto; background-color: #efefef;">
+					<% for (var i=0; i<memberData.posts.length; i++) {%>
+						<a onclick="playThis('<%=memberData.posts[i].video_id%>')">
+							<div style="margin-bottom: 10px;">
+								<img src="https://img.youtube.com/vi/<%= memberData.posts[i].video_id %>/hqdefault.jpg" width="180px" />	
+								<!-- <li><%= memberData.posts[i].picture %></li> -->
+							    <h5><%= memberData.posts[i].title %></h5>
+						    </div>
+						</a>
+					<% } %>
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+
+	<script>
+		let access_token = "";
+
+		// header 用
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
+		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+
+		    let accessToken = getCookie("access_token");
+		    if (accessToken) {
+		    	isLogin(accessToken);
+		    } else {
+		    	navList1.setAttribute("href", "/member/signin.html");
+		    	navList2.setAttribute("href", "/member/signup.html");
+
+		    	navList1.innerText = "登入";
+		    	navList2.innerText = "註冊";
+		    }
+
+		    renderHeader();
+		});
+
+		function isLogin(cookie) {
+
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				if (res.result){
+					console.log(res.memberData);
+
+			    	navList1.setAttribute("href", "/post/createPost.html");
+			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+
+			    	navList1.innerText = "發表";
+			    	navList2.innerText = res.memberData.name;
+
+
+			    	//是否有追蹤
+			    	let account = document.getElementById("memberAccount").innerText;
+			    	let viewer_account = res.memberData.account;
+					let followMemberBtn  = document.getElementById("followMemberBtn");
+					if (followMemberBtn) { //如果這個 buttom 有 render 出來 就去要
+						fetch(`/api/1.0/member/isFollow?account=${account}&follower_account=${viewer_account}`)
+						.then((response) => {
+							return response.json(); 
+						})
+						.then(resJSON=>{
+							if ( resJSON ) {
+								console.log(resJSON.result);
+								followMemberBtn.innerText= resJSON.result?"不追蹤":"追蹤";
+					        	followMemberBtn.setAttribute("class", "btn btn-primary obe-btn "+(resJSON.result?"selected":"") );
+							}
+						})
+						.catch((err) => {
+							console.log('錯誤:', err);
+						});
+
+					}
+					//是否有追蹤 end
+				} else {
+					console.log(res.message);
+				}
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		function getCookie(name) {
+			let cookie = {};
+				document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		// header 用 end
+
+		if (!getCookie("access_token")) {
+			console.log("Didn't signin");
+			
+		} else {
+			function followMember() {
+				access_token = getCookie("access_token");
+				let account          = document.getElementById("memberAccount").innerText;
+				let followMemberBtn  = document.getElementById("followMemberBtn");
+				let followMember     = followMemberBtn.innerText==="追蹤"?true:false
+
+				let requestData = {
+					"account": account,
+					"follow": followMember
+				}
+
+				let data = JSON.stringify(requestData);
+
+				let xhr = new XMLHttpRequest();
+				xhr.open("POST", "/api/1.0/member/followMember", false);
+				xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+				xhr.setRequestHeader("Authorization", "Bearer " + access_token);
+
+				xhr.onreadystatechange = function () {
+				    if (xhr.readyState === 4 && xhr.status === 200) {
+				    	let followMemberBtn  = document.getElementById("followMemberBtn");
+				        let result = JSON.parse(xhr.responseText).result;
+				        if (result) {
+				        	if (followMember) {
+				        		followMemberBtn.innerText = "不追蹤"
+					        	followMemberBtn.setAttribute("class", "btn btn-primary obe-btn selected" );
+					        	countFollower(account);
+				        	} else {
+				        		followMemberBtn.innerText = "追蹤"
+					        	followMemberBtn.setAttribute("class", "btn btn-primary obe-btn" );
+					        	countFollower(account);
+				        	}
+
+				        }
+				    }
+				};
+
+				xhr.send(data);
+			}
+		}
+	</script>
+	<script src="../../public/js/renderMemberInfo.js"></script>
+    <script>
+		let playList = <%- JSON.stringify(memberData.posts) %>;
+		let memberData = <%- JSON.stringify(memberData) %>;
+		let nowPlay = 0;
+		let nowPlayTitle = document.getElementById("nowPlayTitle");
+
+		// 2. This code loads the IFrame Player API code asynchronously.
+		var tag = document.createElement('script');
+
+		tag.src = "https://www.youtube.com/iframe_api";
+		var firstScriptTag = document.getElementsByTagName('script')[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+		// 3. This function creates an <iframe> (and YouTube player)
+		//    after the API code downloads.
+		var player;
+		function onYouTubeIframeAPIReady() {
+			player = new YT.Player('player', {
+				height: '390',
+				width: '640',
+				videoId: playList[nowPlay].video_id,
+				events: {
+					'onReady': onPlayerReady,
+					'onStateChange': onPlayerStateChange
+				}
+			});
+		}
+
+		// 4. The API will call this function when the video player is ready.
+		function onPlayerReady(event) {
+			if(playList[nowPlay].title.length>35){
+				nowPlayTitle.innerText=playList[nowPlay].title.substring(0,35)+"...";
+			} else {
+				nowPlayTitle.innerText=playList[nowPlay].title;
+			}
+			
+
+			fetch(`/api/1.0/view/startview?video_id=${playList[nowPlay].video_id}`)
+			.then(function(response) {
+				return response.json();
+			})
+			.then(function(myJson) {
+				console.log(myJson);
+				if (myJson.result){
+					viewsTimmer(player.getDuration());
+				}
+			});
+			event.target.playVideo();
+		}
+
+		// 5. The API calls this function when the player's state changes.
+		//    The function indicates that when playing a video (state=1),
+		//    the player should play for six seconds and then stop.
+		function onPlayerStateChange(event) {
+			if (event.data === YT.PlayerState.ENDED) { //影片播完會發生
+				nowPlay +=1;
+				if ( nowPlay >= playList.length || nowPlay < 0 ){
+					nowPlay = 0;
+				}
+				// player.loadVideoById(playList[nowPlay].video_id);
+				mainPlay(playList[nowPlay].video_id);
+				
+			}
+		}
+
+		function mainPlay(video_id) {
+			if(playList[nowPlay].title.length>35){
+				nowPlayTitle.innerText=playList[nowPlay].title.substring(0,35)+"...";
+			} else {
+				nowPlayTitle.innerText=playList[nowPlay].title;
+			}
+
+			player.loadVideoById(video_id);
+			//增加播放次數
+			fetch(`/api/1.0/view/startview?video_id=${video_id}`)
+			.then(function(response) {
+				return response.json();
+			})
+			.then(function(myJson) {
+				console.log(myJson);
+				if (myJson.result){
+					viewsTimmer(myJson.duration);
+				}
+			});
+		}
+
+		//點擊播放
+		function playThis(video_id){
+			// let mainPlayTag = document.getElementsByTagName 
+			nowPlay = playList.findIndex(p => p.video_id === video_id);
+			// player.loadVideoById(playList[nowPlay].video_id);
+			mainPlay(video_id);
+		}
+
+		function viewsTimmer(duration){
+			console.log(duration);
+			setTimeout("addViews('"+nowPlay+"')", duration*1000*3/4);	
+		}
+
+		function addViews(nowPlay){
+			// console.log(nowPlay);
+			let requestData = {
+				"post_id":  playList[nowPlay].post_id,
+				"video_id": playList[nowPlay].video_id
+			}
+			let data = JSON.stringify(requestData);
+
+			let xhr = new XMLHttpRequest();
+			xhr.open("POST", "/api/1.0/view/addView", false);
+			xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+			xhr.onreadystatechange = function () {
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+			        let result = JSON.parse(xhr.responseText).result;
+			        console.log(result);
+			    }
+			};
+
+			xhr.send(data);
+		}
+		
+    </script>
+</body>
+</html>

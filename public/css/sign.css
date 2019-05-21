@@ -1,0 +1,79 @@
+body {
+	background: #f5f8fa;
+}
+
+#grid-box {
+	margin: 100px auto;
+	padding-top: 20px;
+
+	max-width: 680px;
+	display: grid;
+	grid-template-columns: repeat(10,1fr);
+	grid-template-areas: "fbBTN fbBTN fbBTN fbBTN my-signin2 my-signin2 my-signin2 my-signin2";
+
+	grid-template-rows: 0.5fr 0.2fr 0.5fr 0.5fr 0.2fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr 0.5fr 0.2fr 0.5fr 0.5fr;
+
+	background-color: #FFF;
+	border-color: #58bdd4;
+}
+
+#grid-box h2{
+	grid-column: 4/6;
+	margin: 0 0 0 10px;
+}
+
+#fbBTN {
+	grid-column: 4/8;
+	margin-bottom: 10px;
+}
+
+#my-signin2 {
+	grid-column: 4/8;
+	margin-bottom: 10px;
+}
+
+#grid-box .space {
+	grid-column: 3/11;
+}
+
+#grid-box p {
+	margin: auto 0;
+	grid-column: 3/3;
+
+	text-align: right;
+}
+#grid-box input {
+	grid-column: 4/8;
+	margin: 5px;
+}
+
+#grid-box span {
+	grid-column: 8/10;
+}
+
+#recaptchaCheck {
+	grid-column: 9/11;
+}
+
+#grid-box .g-recaptcha{
+	grid-column: 4/7;
+}
+
+#grid-box button {
+	grid-column: 4/8;
+	margin-left: 10px;
+
+	color: #FFF;
+	background-color:#6cc5d9;
+    border-radius: 0;
+
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+#grid-box button:hover {
+    background-color: #58bdd4;
+}
+
+

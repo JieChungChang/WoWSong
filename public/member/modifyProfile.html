@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ObeObeKo 謳歌 - 編輯帳戶</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link href="../../css/header.css" rel="stylesheet" type="text/css">
+	<link href="../../css/member.css" rel="stylesheet" type="text/css">
+	<link href="../../css/generic.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light" style="padding: 10px 10% 10px 10%;">
+  		<a class="navbar-brand" href="/" style="color:#6cc5d9;">
+  			<img src="/img/logo_blue_65.png" width="30" height="30" class="d-inline-block align-top" alt="">
+  			謳歌
+  		</a>
+  		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    		<span class="navbar-toggler-icon"></span>
+  		</button>
+		<div class="collapse navbar-collapse" id="navbarNavDropdown">
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="/" style="color:#6cc5d9;">首頁 <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/member/signin.html">登入</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/member/signup.html">註冊</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+	<div class="body">
+		<div class="member-container">
+			<h2 id="member-heading"></h2>
+			<div id="member-body">
+				<div id="member-image">
+					<div id="image-container">
+						<img id="member-img" src="">
+					</div>
+					<input type="file" id="imgFileInput" accept="image/*" onchange="uploadImg(this.files)" hidden>
+					<button class="btn btn-primary obe-btn" id="imgFileButton" style="width: 100%" onclick="fireImgFileInput()">更改照片</button>
+				</div>
+				<div id="member-modify">
+					<!-- <form method="POST" action="/api/1.0/member/modifyInfo" > -->
+						<div class="form-group">
+							<label for="member-name-input">姓名</label>
+							<input type="text" class="form-control" id="member-name-input" name="memberName" placeholder="姓名">
+							<small id="nameHelp" class="form-text" style="color: #f13232;"></small>
+						</div>
+						<div class="form-group">
+							<label for="member-account-input">帳號</label>
+							<div class="input-group mb-3">
+								<div class="input-group-prepend">
+									<span class="input-group-text" id="basic-addon1">@</span>
+								</div>
+								<input type="text" class="form-control" id="member-account-input" name="memberAccount" placeholder="帳號" aria-label="Username" aria-describedby="basic-addon1">
+							</div>
+							<small id="accountHelp" class="form-text" style="color: #f13232;"></small>
+						</div>
+						 <div class="form-group">
+							<label for="member-intro-input">自我介紹</label>
+							<textarea class="form-control" id="member-intro-input" name="memberIntro" rows="3" maxlength="50"></textarea>
+							<small id="introductionHelp" class="form-text" style="color: #f13232;"></small>
+						</div>
+						<button type="submit" class="btn btn-primary obe-btn" id="save" style="width: 100%">儲存</button>
+					<!-- </form> -->
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".nav-link")[1];
+		let navList2  = document.querySelectorAll(".nav-link")[2];
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+		    let accessToken = getCookie("access_token");
+		    if (accessToken) {
+		    	isLogin(accessToken, (res)=>{
+		    		if (res.result){
+						console.log(res.memberData);
+
+				    	navList1.setAttribute("href", "/post/createPost.html");
+				    	navList1.innerText = "發表";
+
+				    	addDropdownList(res.memberData.name, res.memberData.account, navList2 )
+
+				    	let heading = document.getElementById("member-heading");
+				    	let memberImage = document.getElementById("member-img");
+				    	let memberName = document.getElementById("member-name-input");
+				    	let memberAccount = document.getElementById("member-account-input");
+				    	let memberIntroduction = document.getElementById("member-intro-input");
+
+				    	heading.innerText = `HI！ ${res.memberData.name}要不要來一點？`;
+				    	memberImage.setAttribute("src",res.memberData.picture);
+				    	memberName.value = res.memberData.name;
+				    	memberAccount.value = res.memberData.account;
+
+				    	document.getElementById("save").addEventListener("click", function(e){
+				    		e.preventDefault();
+				    		
+				    		let accessToken = getCookie("access_token");
+
+				    		let xhr = new XMLHttpRequest();
+
+				    		let requestData = {
+								"name": memberName.value,
+							    "account": memberAccount.value,
+							    "introduction": memberIntroduction.value
+							}
+
+							console.log(requestData);
+
+							requestData = JSON.stringify(requestData);
+						 	xhr.open("PATCH", "/api/1.0/member/information", false);
+							xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+							xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+						    xhr.onreadystatechange = function () {  
+							    if (xhr.readyState === 4 && xhr.status === 200) {
+							    	let nameHelp = document.getElementById("nameHelp");
+						    		let accountHelp = document.getElementById("accountHelp");
+						    		let introductionHelp = document.getElementById("introductionHelp");
+
+							    	cleanHelpInfo();
+
+							        let result = JSON.parse(xhr.responseText);
+							        console.log(result);
+							        if (result.updateResult) {
+							        	let newData = result.udapteData;
+							        	memberName.value = newData.name;
+							        	memberAccount.value = newData.account;
+							        	memberIntroduction.value = newData.introduction;
+
+							        } else {
+
+							        	switch( result.type ) {
+											case 0:
+												nameHelp.innerText = result.message;
+												break;
+											case 1:
+												accountHelp.innerText = result.message;
+												break;
+											case 2:
+												introductionHelp.innerText = result.message;
+												break;
+										}
+
+							        }
+							    } 
+						    };
+
+						    xhr.send(requestData);
+						});
+
+						
+					} else {
+						window.location = "/member/signin.html";
+					}
+		    	});
+
+		    } else {
+		    	window.location = "/member/signin.html";
+		    }
+		    
+
+		});
+		function addDropdownList(name, account, node) {
+			let dropdownList = document.createElement("li");
+			dropdownList.setAttribute("class","nav-item dropdown");
+
+			let dropdownListName = document.createElement("a");
+			dropdownListName.setAttribute("class","nav-link dropdown-toggle");
+			dropdownListName.href = "#";
+			dropdownListName.id="navbarDropdownMenuLink";
+			dropdownListName.setAttribute("role", "button");
+			dropdownListName.setAttribute("data-toggle", "dropdown");
+			dropdownListName.setAttribute("aria-haspopup", "true");
+			dropdownListName.setAttribute("aria-expanded", "false");
+
+			let dropdownListNameText = document.createTextNode(name);
+			dropdownListName.appendChild(dropdownListNameText);
+
+			dropdownList.appendChild(dropdownListName);
+
+
+			let dropdownMenu = document.createElement("div");
+			dropdownMenu.setAttribute("class","dropdown-menu");
+			dropdownMenu.setAttribute("aria-labelledby","navbarDropdownMenuLink");
+
+
+			let dropdownMenuItemLink1 = document.createElement("a");
+			let dropdownMenuItemText1 = document.createTextNode("個人首頁");
+
+			dropdownMenuItemLink1.appendChild(dropdownMenuItemText1);
+
+			dropdownMenuItemLink1.href="/post/member?account="+account
+			dropdownMenuItemLink1.setAttribute("class","dropdown-item");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink1);
+
+
+
+
+			let dropdownMenuItemLink2 = document.createElement("a");
+			let dropdownMenuItemText2 = document.createTextNode("個人帳戶");
+
+			dropdownMenuItemLink2.appendChild(dropdownMenuItemText2);
+			dropdownMenuItemLink2.href="/member"
+			dropdownMenuItemLink2.setAttribute("class","dropdown-item");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink2);
+
+			let dropdownMenuItemLink3 = document.createElement("a");
+			let dropdownMenuItemText3 = document.createTextNode("登出");
+			dropdownMenuItemLink3.setAttribute("class","dropdown-item");
+			dropdownMenuItemLink3.appendChild(dropdownMenuItemText3);
+			dropdownMenuItemLink3.setAttribute("onclick","logout()");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink3);
+
+			dropdownList.appendChild(dropdownMenu);
+
+			node.parentNode.replaceChild(dropdownList,node)
+		}
+
+		function logout(){
+			delCookie("access_token");
+			window.location="/"
+		}
+		function delCookie(name) {
+		    document.cookie = document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+		};
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		function isLogin(cookie, callback) {
+
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				callback(res);
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		//修改照片 function
+		//上傳照片
+		let files = [];
+
+		function fireImgFileInput(){
+			console.log("Image change");
+			let imgFileInput = document.getElementById("imgFileInput");
+			imgFileInput.click();
+		}
+
+		function uploadImg(inputFiles){
+			console.log("Image uploading");
+			files = inputFiles;
+
+			let file = files[0];
+			console.log(file);
+			console.log(URL.createObjectURL(file));
+
+			createImageURL(file, (url)=>{
+				let memberImage = document.getElementById("member-img");
+				memberImage.setAttribute("src","../../public/img/loading.gif");
+
+				let access_token = getCookie("access_token");
+
+				let formData = new FormData();
+				formData.append("file", file);
+
+				let xhr = new XMLHttpRequest();
+
+			    xhr.open("PATCH", "/api/1.0/member/image", true);
+				xhr.setRequestHeader("Authorization", "Bearer " + access_token);
+
+			    xhr.onreadystatechange = function () {  
+				    if (xhr.readyState === 4 && xhr.status === 200) {
+				        let result = JSON.parse(xhr.responseText);
+				        console.log(result);
+				        if (result.updateResult) {
+				        	memberImage.setAttribute("src", result.picture+"?random="+Math.random());
+				        } 
+				    }
+			    };
+
+			    xhr.send(formData);
+
+			})
+		}
+
+		function createImageURL(file,callback) {
+			let imageURL = URL.createObjectURL(file);
+			callback(imageURL);
+		}
+
+		function cleanHelpInfo() {
+			let nameHelp = document.getElementById("nameHelp");
+    		let accountHelp = document.getElementById("accountHelp");
+    		let introductionHelp = document.getElementById("introductionHelp");
+
+    		nameHelp.innerText = "";
+			accountHelp.innerText = "";
+			introductionHelp.innerText = "";
+		}
+
+	</script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>
+</body>
+</html>

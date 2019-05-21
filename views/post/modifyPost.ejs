@@ -1,0 +1,180 @@
+ <!DOCTYPE html>
+<html>
+<head>
+	<title>ObeObeKo 謳歌 - 編輯謳歌</title>
+	<!-- <script type="text/javascript" src="https://www.youtube.com/iframe_api"></script> -->
+	<link href="../css/header.css" rel="stylesheet">
+	<link href="../css/create-post-body.css" rel="stylesheet">
+</head>
+<body>
+	<header class="main-header clearfix">
+		<a class="header-icon-link" href="../"><img class="header-icon" alt="ObeObeKo icon" src="../img/logo_blue_65.png">謳歌</a>
+        
+        <div class="flex-container"></div>
+
+        <ul class="navigation-list">
+         	<li><a href="../">首頁</a></li>
+            <li><a href="../member/signin.html">登入</a></li>
+            <li><a href="../member/signup.html">註冊</a></li>
+        </ul>
+	</header>
+	<% if (!result.tokenVerify) { %>
+		<div>
+			<h1>帳號不符合</h1>
+		</div>
+	<% } else { %>
+		<div class="body">
+			<h2>編輯謳歌</h2>
+			<div id="section-1">
+				<h3>更換封面</h3>
+				<div id="edit-img-container">
+					<img id="obeobeko_image" src="<%=result.postDetailData.picture%>" style="width:640px;">
+				</div>
+				<input type="file" id="imgFileInput" accept="image/*" onchange="uploadImg(this.files)" hidden>
+				<button id="imgFileButton" onclick="fireImgFileInput()">更改照片</button>
+			</div> 
+
+			<div id="section-2">
+			</div>
+			<div id="create_obeobeko_block">
+				<div class="section-title">
+					<h3>編輯謳歌</h3>
+				</div>
+				<div id="postForm">
+					<textarea id="obeobeko_content" name="obeobeko_content" placeholder="寫下謳歌... ..." rows="5" maxlength="1000" required><%=result.postDetailData.content%></textarea>
+				</div>
+				<div id="sendButton">
+					<button onclick="modifyPost(<%=result.postDetailData.id%>)">修改謳歌</button>
+				</div>
+			</div>
+		</div>
+	<% } %>	
+	<script type="text/javascript">
+		let access_token = "";
+
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
+		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
+
+
+		let ytPlayerBlock = document.getElementById("ytPlayer");
+		let ytImageBlock  = document.getElementById("ytImage");
+
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		function isLogin(cookie) {
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				if (res.result){
+					console.log(res.memberData);
+
+			    	navList1.setAttribute("href", "/post/createPost.html");
+			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+
+			    	navList1.innerText = "發表";
+			    	navList2.innerText = res.memberData.name;
+				} else {
+					console.log(res.message);
+					window.location="/member/signin.html";
+				}
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+		    access_token = getCookie("access_token");
+		   	
+		   	if (!getCookie("access_token")) { //如果連 Access Token 都沒有就導到登入頁面
+				window.location="/member/signin.html";
+
+			} else { //如果有 Access Token 先確認是不是有效的
+			   	isLogin(access_token); //用 Token 來確認 對 header處理
+			}
+		});
+
+
+		//上傳照片
+		let files = [];
+
+		function fireImgFileInput(){
+			let imgFileInput = document.getElementById("imgFileInput");
+			imgFileInput.click();
+		}
+
+		function uploadImg(inputFiles){
+			files = inputFiles;
+
+			let file = files[0];
+			console.log(file);
+			console.log(URL.createObjectURL(file));
+			let ytImage = document.getElementById("obeobeko_image");
+			ytImage.setAttribute("src",URL.createObjectURL(file));
+		}
+
+		function modifyPost(postID) {
+			let file = files[0];
+			access_token = getCookie("access_token");
+
+			let formData = new FormData();
+			if (file){
+				formData.append("file", file, postID);
+			} 
+		    formData.append("post_id", postID);
+		    formData.append("content", document.getElementById("obeobeko_content").value);
+
+			console.log(formData);
+
+			let xhr = new XMLHttpRequest();
+
+		    xhr.open("PATCH", "/api/1.0/post", true);
+			xhr.setRequestHeader("Authorization", "Bearer " + access_token);
+
+		    xhr.onreadystatechange = function () {  
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+			        let result = JSON.parse(xhr.responseText);
+			        console.log(result);
+			        if (result.updateResult) {
+			        	window.location="/post/details?postid="+result.post_id;
+			        }
+			    }
+		    };
+
+		    xhr.send(formData);
+		}
+
+		let aTag = document.querySelectorAll(".nav-tabs a");
+		aTag.forEach(tag=>{
+			tag.addEventListener("click", function(){
+				if (tag.innerText==="影片預覽"){
+					ytImageBlock.hidden = true;
+					ytPlayerBlock.hidden = false;
+				} 
+				if (tag.innerText==="影片封面"){
+					ytImageBlock.hidden = false;
+					ytPlayerBlock.hidden = true;
+				} 
+			})
+		})
+	</script>
+</body>
+</html>

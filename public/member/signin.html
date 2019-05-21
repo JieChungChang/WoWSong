@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-signin-client_id" content="288950503271-lcguojausmbr9bosbces66ub0ua6ig2i.apps.googleusercontent.com">
+<title>Obeobeko 會員登入</title>
+<style>
+body{
+	font-size:16px;
+	font-family:"Noto Sans TC", "微軟正黑體", "新細明體", arial, sans-serif;
+	color:#3f3a3a;line-height:2.5em;
+}
+input{
+	padding:5px;
+}
+</style>
+<link href="../css/header.css" rel="stylesheet">
+<link href="../css/sign.css" rel="stylesheet">
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script src="https://apis.google.com/js/platform.js" async defer></script>
+</head>
+<body>
+	<header class="main-header clearfix">
+		<a class="header-icon-link" href="../"><img class="header-icon" alt="ObeObeKo icon" src="../img/logo_blue_65.png">謳歌</a>
+        <div class="flex-container"></div>
+        <ul class="navigation-list">
+         	<li><a href="../">首頁</a></li>
+            <li><a href="../member/signin.html">登入</a></li>
+            <li><a href="../member/signup.html">註冊</a></li>
+        </ul>
+	</header>
+	
+	<div id="grid-box">
+		<h2>登入</h2>
+		<div class="space"></div>
+		<div id="fbBTN" class="fb-login-button" data-size="large" data-button-type="login_with" data-auto-logout-link="false" data-use-continue-as="false" scope="public_profile,email" onlogin="checkLoginState();"></div>
+		<div id="my-signin2"></div>
+		<div class="space"></div>
+		<p>帳號</p> <input type="text" id="account" required="required" /><span id="accountCheck" style="color: #8B0000"></span>
+		<p>密碼</p><input type="password" id="password1" required="required" /><span id="psdCheck" style="color: #8B0000"></span>
+		<div class="space"></div>
+		<div class="g-recaptcha" data-sitekey="6LdvJZwUAAAAAMMR8n7rlzovrrYmBoSIoCuoN4CH"></div>
+		<span id="recaptchaCheck" style="color: #8B0000; grid-column: 9/11;"></span><br />
+		<div class="space"></div>
+		<button id="signin" onclick="signin()" > 送出 </button>
+	</div>
+	<div id="fb-root"></div>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<script src="../js/nativeSignin.js"></script>
+	<script src="../js/ggsignin.js"></script>
+	<script src="https://apis.google.com/js/platform.js?onload=renderButton" async defer></script>
+	<script async defer crossorigin="anonymous" src="https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v3.2&appId=352041075417666&autoLogAppEvents=1"></script>
+	<script src="../js/fbsignin.js"></script>
+	<script type="text/javascript">
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
+		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+		    let accessToken = getCookie("access_token");
+		    if (accessToken) {
+		    	isLogin(accessToken);
+		    } else {
+		    	navList1.setAttribute("href", "/member/signin.html");
+		    	navList2.setAttribute("href", "/member/signup.html");
+
+		    	navList1.innerText = "登入";
+		    	navList2.innerText = "註冊";
+		    }
+		    
+
+		});
+
+		function isLogin(cookie) {
+
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				if (res.result){
+					console.log(res.memberData);
+
+			    	navList1.setAttribute("href", "/post/createPost.html");
+			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+
+			    	navList1.innerText = "發表";
+			    	navList2.innerText = res.memberData.name;
+				} else {
+					console.log(res.message);
+				}
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+	</script>
+</body>
+</html>

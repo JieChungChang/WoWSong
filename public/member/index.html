@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ObeObeKo 謳歌 - 個人帳戶</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link href="css/header.css" rel="stylesheet">
+	<link href="css/member.css" rel="stylesheet">
+	<link href="css/generic.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light" style="padding: 10px 10% 10px 10%;">
+  		<a class="navbar-brand" href="./" style="color:#6cc5d9;">
+  			<img src="img/logo_blue_65.png" width="30" height="30" class="d-inline-block align-top" alt="">
+  			謳歌
+  		</a>
+  		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    		<span class="navbar-toggler-icon"></span>
+  		</button>
+		<div class="collapse navbar-collapse" id="navbarNavDropdown">
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="./" style="color:#6cc5d9;">首頁 <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/member/signin.html">登入</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/member/signup.html">註冊</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+	<div class="body">
+		<div class="member-container">
+			<h2 id="member-heading"></h2>
+			<div id="member-body">
+				<div id="image-container">
+					<img id="member-img" src="">
+				</div>
+				<div id="member-nav">
+					<a class="btn btn-primary obe-btn full">發表謳歌</a>
+					<a class="btn btn-default full">開啟電台</a>
+					<a class="btn btn-default full">編輯帳戶</a>
+					<a class="btn btn-default full">修改 E-mail/ 密碼</a>
+				</div>
+			</div>
+		</div>
+		<hr>
+
+		<ul class="nav nav-tabs">
+			<li class="nav-item">
+				<a class="nav-link active" id="followTab" onclick="checkoutFollow()">追蹤動態</a>
+			</li>
+			<li class="nav-item">
+				<a class="nav-link" id="selfTab" onclick="checkoutSelf()">通知訊息</a>
+			</li>
+		</ul>
+		<div class="follow-container" id="follow-container">
+			
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		let checkStatus = "";
+		let account = "";
+
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".nav-link")[1];
+		let navList2  = document.querySelectorAll(".nav-link")[2];
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+		    let accessToken = getCookie("access_token");
+		    if (accessToken) {
+		    	isLogin(accessToken, (res)=>{
+		    		if (res.result){
+						console.log(res.memberData);
+
+				    	navList1.setAttribute("href", "/post/createPost.html");
+				    	navList1.innerText = "發表";
+
+				    	addDropdownList(res.memberData.name, res.memberData.account, navList2 )
+
+				    	document.getElementById("member-heading").innerText = `HI！ ${res.memberData.name}要不要來一點？`;
+				    	document.querySelectorAll("#member-body img")[0].setAttribute("src",res.memberData.picture);
+				    	document.querySelectorAll("#member-nav a")[0].setAttribute("href","/post/createPost.html");
+				    	document.querySelectorAll("#member-nav a")[1].setAttribute("href",`/playlist/${res.memberData.account}/radio`);
+				    	document.querySelectorAll("#member-nav a")[2].setAttribute("href","/member/modify/profile");
+				    	document.querySelectorAll("#member-nav a")[3].setAttribute("href","/member/modify/important");
+
+				    	account = res.memberData.account;
+				    	checkoutFollow();
+
+					} else {
+						window.location = "/member/signin.html";
+					}
+		    	});
+
+		    } else {
+		    	window.location = "/member/signin.html";
+		    }
+		    
+
+		});
+		
+		function addDropdownList(name, account, node) {
+			let dropdownList = document.createElement("li");
+			dropdownList.setAttribute("class","nav-item dropdown");
+
+			let dropdownListName = document.createElement("a");
+			dropdownListName.setAttribute("class","nav-link dropdown-toggle");
+			dropdownListName.href = "#";
+			dropdownListName.id="navbarDropdownMenuLink";
+			dropdownListName.setAttribute("role", "button");
+			dropdownListName.setAttribute("data-toggle", "dropdown");
+			dropdownListName.setAttribute("aria-haspopup", "true");
+			dropdownListName.setAttribute("aria-expanded", "false");
+
+			let dropdownListNameText = document.createTextNode(name);
+			dropdownListName.appendChild(dropdownListNameText);
+
+			dropdownList.appendChild(dropdownListName);
+
+
+			let dropdownMenu = document.createElement("div");
+			dropdownMenu.setAttribute("class","dropdown-menu");
+			dropdownMenu.setAttribute("aria-labelledby","navbarDropdownMenuLink");
+
+
+			let dropdownMenuItemLink1 = document.createElement("a");
+			let dropdownMenuItemText1 = document.createTextNode("個人首頁");
+
+			dropdownMenuItemLink1.appendChild(dropdownMenuItemText1);
+
+			dropdownMenuItemLink1.href="/post/member?account="+account
+			dropdownMenuItemLink1.setAttribute("class","dropdown-item");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink1);
+
+
+
+
+			let dropdownMenuItemLink2 = document.createElement("a");
+			let dropdownMenuItemText2 = document.createTextNode("個人帳戶");
+
+			dropdownMenuItemLink2.appendChild(dropdownMenuItemText2);
+			dropdownMenuItemLink2.href="/member"
+			dropdownMenuItemLink2.setAttribute("class","dropdown-item");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink2);
+
+			let dropdownMenuItemLink3 = document.createElement("a");
+			let dropdownMenuItemText3 = document.createTextNode("登出");
+			dropdownMenuItemLink3.setAttribute("class","dropdown-item");
+			dropdownMenuItemLink3.appendChild(dropdownMenuItemText3);
+			dropdownMenuItemLink3.setAttribute("onclick","logout()");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink3);
+
+			dropdownList.appendChild(dropdownMenu);
+
+			node.parentNode.replaceChild(dropdownList,node)
+		}
+		function logout(){
+			delCookie("access_token");
+			window.location="/"
+		}
+		function delCookie(name) {
+		    document.cookie = document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+		};
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		function isLogin(cookie, callback) {
+
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				callback(res);
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+	    async function checkoutFollow() {
+			console.log("follow")
+			if (checkStatus !== "follow") {
+				let followNotificationContainer = document.getElementById("follow-container");
+				while (followNotificationContainer.firstChild) {
+				    followNotificationContainer.removeChild(followNotificationContainer.firstChild);
+				}
+
+				let accessToken = getCookie("access_token");//確認是否 Login 之後會改 Accesstoken 所以要再取得一次
+		    	
+		    	let followNotificationRes = await getFollowNotification( accessToken, account);
+		    	console.log(followNotificationRes.data);
+		    	followNotificationRes = followNotificationRes.data;
+		    	renderFollowNotification(followNotificationRes);
+
+		    	document.getElementById("followTab").setAttribute("class","nav-link active");
+		    	document.getElementById("selfTab").setAttribute("class","nav-link");
+
+		    	checkStatus = "follow"
+		    }
+		}
+
+		async function checkoutSelf() {
+			console.log("self")
+			if (checkStatus !== "self") {
+				let followNotificationContainer = document.getElementById("follow-container");
+				while (followNotificationContainer.firstChild) {
+				    followNotificationContainer.removeChild(followNotificationContainer.firstChild);
+				}
+
+				let accessToken = getCookie("access_token");//確認是否 Login 之後會改 Accesstoken 所以要再取得一次
+
+				let selfNotificationRes = await getSelfNotification( accessToken, account);
+				console.log(selfNotificationRes.data);
+				selfNotificationRes = selfNotificationRes.data;
+				renderSelfNotification(selfNotificationRes);
+
+				document.getElementById("followTab").setAttribute("class","nav-link");
+				document.getElementById("selfTab").setAttribute("class","nav-link active");
+
+				checkStatus = "self" 
+			}
+		}
+
+		function getFollowNotification( cookie, account ){
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			return fetch(`/api/1.0/notification/followList?account=${account}`, data)
+			.then((response) => {
+				return response.json(); 
+			}).catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		function getSelfNotification( cookie, account ){
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			return fetch(`/api/1.0/notification/self?account=${account}`, data)
+			.then((response) => {
+				return response.json(); 
+			}).catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		function renderFollowNotification(feeds) {
+			let followNotificationContainer = document.getElementById("follow-container");
+
+			feeds.forEach((feed)=>{
+				let notificationBlock = document.createElement("div");
+				notificationBlock.setAttribute("class","notification-block");
+				// notificationBlock.setAttribute("id","postImgBlock"+(paging*3+i));
+
+				let timeBlock = document.createElement("div");
+				timeBlock.setAttribute("class","time-block");
+				let timeText = document.createTextNode(time_ago(feed["posts.time"]));
+				timeBlock.appendChild(timeText);
+				
+				notificationBlock.appendChild(timeBlock);
+
+				let accountLink = document.createElement("a");
+				accountLink.setAttribute("href","/post/member?account="+feed.account);
+
+				let accountText = document.createTextNode(feed.account);
+				accountLink.appendChild(accountText);
+
+				notificationBlock.appendChild(accountLink);
+
+				let bridgeText = document.createTextNode(" 發表了謳歌 - ");
+				notificationBlock.appendChild(bridgeText);
+
+				let postLink = document.createElement("a");
+				postLink.setAttribute("href","/post/details?postid="+feed["posts.id"]);
+
+				let postText = document.createTextNode(feed["posts.title"]);
+				postLink.appendChild(postText);
+
+				notificationBlock.appendChild(postLink);
+
+				followNotificationContainer.appendChild(notificationBlock);
+			})
+		}
+
+		function renderSelfNotification(feeds) {
+			let followNotificationContainer = document.getElementById("follow-container");
+
+			feeds.forEach((feed)=>{
+
+				if ( feed["follows.time"] ) {
+					let notificationBlock = document.createElement("div");
+					notificationBlock.setAttribute("class","notification-block");
+
+					let timeBlock = document.createElement("div");
+					timeBlock.setAttribute("class","time-block");
+					let timeText = document.createTextNode(time_ago(feed["follows.time"]));
+					timeBlock.appendChild(timeText);
+					
+					notificationBlock.appendChild(timeBlock);
+
+					let accountLink = document.createElement("a");
+					accountLink.setAttribute("href","/post/member?account="+feed["posts.member_likes.member_account"]);
+
+					let accountText = document.createTextNode(feed["posts.member_likes.member_account"]);
+					accountLink.appendChild(accountText);
+
+					notificationBlock.appendChild(accountLink);
+
+					let bridgeText = document.createTextNode(" 追蹤了你 ");
+					notificationBlock.appendChild(bridgeText);
+				}
+
+				if ( feed["posts.comments.time"] ) {
+					let notificationBlock = document.createElement("div");
+					notificationBlock.setAttribute("class","notification-block");
+					// notificationBlock.setAttribute("id","postImgBlock"+(paging*3+i));
+
+					let timeBlock = document.createElement("div");
+					timeBlock.setAttribute("class","time-block");
+					let timeText = document.createTextNode(time_ago(feed["posts.comments.time"]));
+					timeBlock.appendChild(timeText);
+					
+					notificationBlock.appendChild(timeBlock);
+
+					let accountLink = document.createElement("a");
+					accountLink.setAttribute("href","/post/member?account="+feed["posts.comments.member_account"]);
+
+					let accountText = document.createTextNode(feed["posts.comments.member_account"]);
+					accountLink.appendChild(accountText);
+
+					notificationBlock.appendChild(accountLink);
+
+					let bridgeText1 = document.createTextNode(" 在 ");
+					notificationBlock.appendChild(bridgeText1);
+
+					let postLink = document.createElement("a");
+					postLink.setAttribute("href","/post/details?postid="+feed["posts.id"]);
+
+					let postText = document.createTextNode(feed["posts.title"]);
+					postLink.appendChild(postText);
+
+					notificationBlock.appendChild(postLink);
+
+					let bridgeText2 = document.createTextNode(" 這首謳歌留言：「");
+					notificationBlock.appendChild(bridgeText2);
+
+					let messageText = document.createTextNode(feed["posts.comments.comment"] + "」");
+					notificationBlock.appendChild(messageText);
+
+					followNotificationContainer.appendChild(notificationBlock);
+				}
+
+				if ( feed["posts.member_likes.time"] ) {
+					let notificationBlock = document.createElement("div");
+					notificationBlock.setAttribute("class","notification-block");
+					// notificationBlock.setAttribute("id","postImgBlock"+(paging*3+i));
+
+					let timeBlock = document.createElement("div");
+					timeBlock.setAttribute("class","time-block");
+					let timeText = document.createTextNode(time_ago(feed["posts.member_likes.time"]));
+					timeBlock.appendChild(timeText);
+					
+					notificationBlock.appendChild(timeBlock);
+
+					let accountLink = document.createElement("a");
+					accountLink.setAttribute("href","/post/member?account="+feed["posts.member_likes.member_account"]);
+
+					let accountText = document.createTextNode(feed["posts.member_likes.member_account"]);
+					accountLink.appendChild(accountText);
+
+					notificationBlock.appendChild(accountLink);
+
+					let bridgeText1 = document.createTextNode(" 喜歡您的貼文 ");
+					notificationBlock.appendChild(bridgeText1);
+
+					let postLink = document.createElement("a");
+					postLink.setAttribute("href","/post/details?postid="+feed["posts.id"]);
+
+					let postText = document.createTextNode(feed["posts.title"]);
+					postLink.appendChild(postText);
+
+					notificationBlock.appendChild(postLink);
+
+					followNotificationContainer.appendChild(notificationBlock);
+				}
+
+				
+			})
+		};
+
+		function time_ago(time) {
+
+			switch (typeof time) {
+				case 'number':
+			  		break;
+				case 'string':
+			  		time = +new Date(time);
+			  		break;
+				case 'object':
+			  		if (time.constructor === Date) time = time.getTime();
+			  		break;
+				default:
+			  	time = +new Date();
+			}
+		  	let time_formats = [
+		    	[60, 'seconds', 1], // 60
+		    	[120, '1 分鐘前', '1 分鐘後'], // 60*2
+		    	[3600, '分鐘', 60], // 60*60, 60
+		    	[7200, '1 小時前', '1 小時後'], // 60*60*2
+		    	[86400, '小時', 3600], // 60*60*24, 60*60
+		    	[172800, '昨天', '今天'], // 60*60*24*2
+		    	[604800, '天', 86400], // 60*60*24*7, 60*60*24
+		    	[1209600, '1 週前', '1 週後'], // 60*60*24*7*4*2
+		    	[2419200, '週', 604800], // 60*60*24*7*4, 60*60*24*7
+		    	[4838400, '1 個月前', '1 個月後'], // 60*60*24*7*4*2
+		    	[29030400, '月', 2419200], // 60*60*24*7*4*12, 60*60*24*7*4
+		    	[58060800, '1 年前', '1 年後'], // 60*60*24*7*4*12*2
+		    	[2903040000, '年', 29030400] // 60*60*24*7*4*12*100, 60*60*24*7*4*12
+		  	];
+		  	let seconds = (+new Date() - time) / 1000,
+		    	token = '前',
+		    	list_choice = 1;
+
+		  	if (seconds == 0) {
+		    	return '現在'
+		  	}
+			if (seconds < 0) {
+				seconds = Math.abs(seconds);
+		    	token = '後';
+		    	list_choice = 2;
+			}
+		  	let i = 0,
+		    format;
+			while (format = time_formats[i++])
+			    if (seconds < format[0]) {
+			    	if (typeof format[2] == 'string')
+			        	return format[list_choice];
+			      	else
+			        	return Math.floor(seconds / format[2]) + ' ' + format[1] + token;
+			    }
+			return time;
+		}
+
+	</script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+</body>
+</html>

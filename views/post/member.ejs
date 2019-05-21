@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="google-signin-client_id" content="288950503271-lcguojausmbr9bosbces66ub0ua6ig2i.apps.googleusercontent.com">
+	<title>WoWsong - <%=memberData.name%></title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="../../public/css/header.css" rel="stylesheet" type="text/css">
+	<link href="../../public/css/detail.css" rel="stylesheet" type="text/css">
+	<link href="../../css/post.css" rel="stylesheet">
+	<link href="../../public/css/generic.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<%- include('../layout/header.ejs') %>
+	<div class="body">
+		<div class="header">
+			<div class="img-block">
+				<img src="<%= memberData.picture %>" />
+			</div>
+			<div class="member-info-block">
+				<div class="row-1">
+					<h2><%= memberData.name %></h2> 
+					<% if(memberData.viewfrom === "self") {%>
+					<button class="btn btn-primary obe-btn" onclick="location.href = '/post/createPost.html';" >發表謳歌</button>
+					<% } else if(memberData.viewfrom === "others") {%>
+					<button id="followMemberBtn" class="btn btn-primary obe-btn" onclick="followMember()">追蹤</button>
+					<% }%>
+				</div>
+				<div class="row-2">
+					<h3><a id="memberAccount" href="/post/member?account=<%=memberData.account%>"><%= memberData.account %></a></h3>
+				</div>
+				<div class="row-3">
+					<span id="postCount">0則貼文</span>
+					<span id="followCount">0位追蹤</span>
+					<span id="followerCount">0位粉絲</span>
+				</div>
+			</div>
+			<div></div>
+		</div>
+
+		</br>
+		</br>
+		<div id="listType">
+				<a href="/post/member?account=<%=memberData.account%>"> <button style="<%= (memberData.target === 'favorite')?'background-color: #FFF; color: #636b6f;':'background-color: #e6e5e5; border-color: #adadad; color: #636b6f;'%>">我的謳歌</button></a>
+				<a href="/post/favorite?account=<%=memberData.account%>"> <button style= "<%= (memberData.target === 'member')?'background-color: #FFF; color: #636b6f;':'background-color: #e6e5e5; border-color: #adadad; color: #636b6f;'%>">喜愛的謳歌</button></a>
+		</div>
+		<% if (memberData.target === 'member') {%>
+		<div id="goToPlay">
+			<a href="/playlist/<%=memberData.account%>/post"> <button>播放謳歌</button></a>
+		</div>
+		<%}%>
+		<div id="videoList">
+		<% for (var i=0; i<memberData.posts.length; i++) {%>
+			<div class="post-raw" id="post<%=i%>">
+				<div class="post-img-block">
+					<a id="imgLink<%=i%>" href="/post/details?postid=<%=memberData.posts[i].post_id%>">
+						<img class="productImg" src="<%= memberData.posts[i].picture %>" width="180px" />
+					</a>
+				</div>
+				<div class="post-content-block" id="postContentBlock<%=i%>">
+					<!-- <li><%= memberData.posts[i].picture %></li> -->
+					<a href="/post/details?postid=<%=memberData.posts[i].post_id%>">
+					    <h3><%= memberData.posts[i].content.length<30?memberData.posts[i].content:(memberData.posts[i].content.substring(0,30)+"...") %></h2>
+					    <h4><%= memberData.posts[i].title %></h3>
+				    </a>
+				    <p class="socialP">
+				    	<%=memberData.posts[i].like_count%>位謳客喜愛 
+				    	<%=memberData.posts[i].comment_count%>位謳客評論 
+				    	<%=memberData.posts[i].view_times%>次觀看 
+				    </p>
+				    <p class="infoP" id="infoP<%=i%>">來自 <a href="/post/member?account=<%=memberData.account%>"><%=memberData.account%></a> 的謳歌 at <%=memberData.posts[i].time %> </p>
+				</div>
+		    </div>
+		<% } %>
+		</div>
+	</div>
+	<script type="text/javascript">
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
+		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+		    let accessToken = getCookie("access_token");
+		    if (accessToken) {
+		    	isLogin(accessToken);
+		    } else {
+		    	navList1.setAttribute("href", "/member/signin.html");
+		    	navList2.setAttribute("href", "/member/signup.html");
+
+		    	navList1.innerText = "登入";
+		    	navList2.innerText = "註冊";
+		    }
+		    
+		    renderHeader();
+		});
+
+		function isLogin(cookie) {
+
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				if (res.result){
+					console.log(res.memberData);
+
+			    	navList1.setAttribute("href", "/post/createPost.html");
+			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+
+			    	navList1.innerText = "發表";
+			    	navList2.innerText = res.memberData.name;
+
+			    	//是否有追蹤
+			    	let account = document.getElementById("memberAccount").innerText;
+			    	let viewer_account = res.memberData.account;
+					let followMemberBtn  = document.getElementById("followMemberBtn");
+					if (followMemberBtn) { //如果這個 buttom 有 render 出來 就去要
+						fetch(`/api/1.0/member/isFollow?account=${account}&follower_account=${viewer_account}`)
+						.then((response) => {
+							return response.json(); 
+						})
+						.then(resJSON=>{
+							if ( resJSON ) {
+								console.log(resJSON.result);
+								followMemberBtn.innerText= resJSON.result?"不追蹤":"追蹤";
+					        	followMemberBtn.setAttribute("class", "btn btn-primary obe-btn "+(resJSON.result?"selected":"") );
+							}
+						})
+						.catch((err) => {
+							console.log('錯誤:', err);
+						});
+					}
+					//是否有追蹤 end
+
+				} else {
+					console.log(res.message);
+				}
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		if (!getCookie("access_token")) {
+			console.log("Didn't signin");
+			
+		} else {
+			function followMember() {
+				access_token = getCookie("access_token");
+				let account          = document.getElementById("memberAccount").innerText;
+				let followMemberBtn  = document.getElementById("followMemberBtn");
+				let followMember     = followMemberBtn.innerText==="追蹤"?true:false
+
+				let requestData = {
+					"account": account,
+					"follow": followMember
+				}
+
+				let data = JSON.stringify(requestData);
+
+				let xhr = new XMLHttpRequest();
+				xhr.open("POST", "/api/1.0/member/followMember", false);
+				xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+				xhr.setRequestHeader("Authorization", "Bearer " + access_token);
+
+				xhr.onreadystatechange = function () {
+				    if (xhr.readyState === 4 && xhr.status === 200) {
+				    	let followMemberBtn  = document.getElementById("followMemberBtn");
+				        let result = JSON.parse(xhr.responseText).result;
+				        if (result) {
+				        	if (followMember) {
+				        		followMemberBtn.innerText = "不追蹤"
+					        	followMemberBtn.setAttribute("class", "btn btn-primary obe-btn selected" );
+					        	countFollower(account);
+				        	} else {
+				        		followMemberBtn.innerText = "追蹤"
+					        	followMemberBtn.setAttribute("class", "btn btn-primary obe-btn" );
+					        	countFollower(account);
+				        	}
+
+				        }
+				    }
+				};
+
+				xhr.send(data);
+			}
+		}
+
+	</script>
+	<script src="../../public/js/renderMemberInfo.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>

@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ObeObeKo 謳歌 - 更換 E-Mail / 密碼</title>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link href="../../css/header.css" rel="stylesheet" type="text/css">
+	<link href="../../css/member.css" rel="stylesheet" type="text/css">
+	<link href="../../css/generic.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<nav class="navbar fixed-top navbar-expand-lg navbar-light bg-light" style="padding: 10px 10% 10px 10%;">
+  		<a class="navbar-brand" href="/" style="color:#6cc5d9;">
+  			<img src="/img/logo_blue_65.png" width="30" height="30" class="d-inline-block align-top" alt="">
+  			謳歌
+  		</a>
+  		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    		<span class="navbar-toggler-icon"></span>
+  		</button>
+		<div class="collapse navbar-collapse" id="navbarNavDropdown">
+			<ul class="navbar-nav ml-auto">
+				<li class="nav-item active">
+					<a class="nav-link" href="/" style="color:#6cc5d9;">首頁 <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/member/signin.html">登入</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/member/signup.html">註冊</a>
+				</li>
+			</ul>
+		</div>
+	</nav>
+	<div class="body">
+		<h2 id="member-heading">更換 E-Mail / 密碼</h2>
+		<div class="alert alert-success" id="information" role="alert"></div>
+		<div class="email-container">
+			<h3 id="email-heading">更換 E-Mail</h3>
+
+			<div class="form-group">
+				<label for="email-input">Email</label>
+				<input type="email" class="form-control" id="email-input"  name="memberEmail" aria-describedby="emailHelp" placeholder="E-Mail">
+				<small id="emailHelp" class="form-text" style="color: #f13232;"></small>
+			</div>
+
+			<div class="form-group">
+				<label for="email-password-input">密碼確認</label>
+				<input type="password" class="form-control" id="email-password-input" name="memberPasswordForEmailChange" aria-describedby="emailPasswordHelp" placeholder="請輸入目前密碼
+				">
+				<small id="emailPasswordHelp" class="form-text" style="color: #f13232;"></small>
+			</div>
+
+			<button type="submit" class="btn btn-primary obe-btn" id="saveNewEmail" style="width: 100%">更換 E-Mail</button>
+		</div>
+
+		</br>
+		</br>
+
+		<div class="password-container">
+			<h3 id="password-heading">更換密碼</h3>
+
+			<div class="form-group">
+				<label for="password-input">新密碼</label>
+				<input type="password" class="form-control" id="password-input"  name="memberPassword" aria-describedby="passwordHelp" placeholder="請輸入新密碼">
+				<small id="passwordHelp" class="form-text" style="color: #f13232;"></small>
+			</div>
+
+			<div class="form-group">
+				<label for="password-confirm-input">確認新密碼</label>
+				<input type="password" class="form-control" id="password-confirm-input"  name="memberPasswordConfirm" aria-describedby="passwordConfirmHelp" placeholder="請確認新密碼">
+				<small id="passwordConfirmHelp" class="form-text" style="color: #f13232;"></small>
+			</div>
+
+			<div class="form-group">
+				<label for="password-second-confirm-input">密碼確認</label>
+				<input type="password" class="form-control" id="current-password-confirm-input" name="memberSecondPasswordConfirm" aria-describedby="currentPasswordConfirmHelp" placeholder="請輸入目前密碼
+				">
+				<small id="currentPasswordConfirmHelp" class="form-text" style="color: #f13232;"></small>
+			</div>
+
+			<button type="submit" class="btn btn-primary obe-btn" id="saveNewPassword" style="width: 100%">更換密碼</button>
+		</div>
+	</div>
+	<script type="text/javascript">
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".nav-link")[1];
+		let navList2  = document.querySelectorAll(".nav-link")[2];
+
+		let information = document.getElementById("information");
+
+    	let emailInput = document.getElementById("email-input");
+    	let emailPasswordInput = document.getElementById("email-password-input");
+    	let emailHelp = document.getElementById("emailHelp");
+    	let emailPasswordHelp = document.getElementById("emailPasswordHelp");
+
+    	let passwordInput = document.getElementById("password-input");
+    	let newPasswordConfirmInput = document.getElementById("password-confirm-input");
+    	let currentPasswordInput = document.getElementById("current-password-confirm-input");
+    	let passwordHelp = document.getElementById("passwordHelp");
+    	let passwordConfirmHelp = document.getElementById("passwordConfirmHelp");
+    	let currentPasswordConfirmHelp = document.getElementById("currentPasswordConfirmHelp");
+
+    	let emailSaveBtn = document.getElementById("saveNewEmail");
+    	let passwordSaveBtn = document.getElementById("saveNewPassword");
+
+    	function clearHelp() {
+			emailHelp.innerText = "";
+			emailPasswordHelp.innerText = "";
+			passwordHelp.innerText = "";
+			passwordConfirmHelp.innerText = "";
+			currentPasswordConfirmHelp.innerText = "";
+    	}
+
+		document.addEventListener("DOMContentLoaded", function(event) {
+		    let accessToken = getCookie("access_token");
+		    if (accessToken) {
+
+		    	isLogin(accessToken, (res)=>{
+
+		    		if (res.result){
+
+						console.log(res.memberData);
+
+				    	navList1.setAttribute("href", "/post/createPost.html");
+				    	navList1.innerText = "發表";
+
+				    	addDropdownList(res.memberData.name, res.memberData.account, navList2 )
+
+				    	if ( res.memberData.provider === "native" ) {
+				    		if ( res.memberData.verify ) {
+					    		information.setAttribute("class","alert alert-success");
+					    		information.innerText = "E-Mail 驗身已完成。";
+					    	} else {
+				    			information.setAttribute("class","alert alert-warning");
+				    			information.innerText = `E-Mail 尚未驗身完成。 請儘速至 ${res.memberData.email} 信箱確認！`;
+				    		}
+
+				    		emailInput.value = res.memberData.email;
+
+				    		emailSaveBtn.addEventListener("click", function(e){
+				    			newEmailSave(e);
+				    		});
+
+				    		passwordSaveBtn.addEventListener("click", function(e){
+				    			newPasswordSave(e);
+				    		});
+
+				    	} else {
+
+			    			information.setAttribute("class","alert alert-success");
+			    			information.innerText = `E-Mail 驗身已完成。 您使用 ${res.memberData.provider} 註冊，不需要更換 E-Mail 密碼。`;
+
+				    		emailInput.value = res.memberData.email;
+
+				    		emailInput.setAttribute("disabled","true");
+				    		emailPasswordInput.setAttribute("disabled","true");
+				    		passwordInput.setAttribute("disabled","true");
+				    		newPasswordConfirmInput.setAttribute("disabled","true");
+				    		currentPasswordInput.setAttribute("disabled","true");
+
+				    		emailSaveBtn.style.display = "none";
+				    		passwordSaveBtn.style.display = "none";
+				    	}
+
+
+
+				    	// heading.innerText = `HI！ ${res.memberData.name}要不要來一點？`;
+				    	// memberImage.setAttribute("src",res.memberData.picture);
+				    	// memberName.value = res.memberData.name;
+				    	// memberAccount.value = res.memberData.account;
+
+					} else {
+						window.location = "/member/signin.html";
+					}
+
+		    	});
+
+		    } else {
+		    	window.location = "/member/signin.html";
+		    }
+		});
+		function addDropdownList(name, account, node) {
+			let dropdownList = document.createElement("li");
+			dropdownList.setAttribute("class","nav-item dropdown");
+
+			let dropdownListName = document.createElement("a");
+			dropdownListName.setAttribute("class","nav-link dropdown-toggle");
+			dropdownListName.href = "#";
+			dropdownListName.id="navbarDropdownMenuLink";
+			dropdownListName.setAttribute("role", "button");
+			dropdownListName.setAttribute("data-toggle", "dropdown");
+			dropdownListName.setAttribute("aria-haspopup", "true");
+			dropdownListName.setAttribute("aria-expanded", "false");
+
+			let dropdownListNameText = document.createTextNode(name);
+			dropdownListName.appendChild(dropdownListNameText);
+
+			dropdownList.appendChild(dropdownListName);
+
+
+			let dropdownMenu = document.createElement("div");
+			dropdownMenu.setAttribute("class","dropdown-menu");
+			dropdownMenu.setAttribute("aria-labelledby","navbarDropdownMenuLink");
+
+
+			let dropdownMenuItemLink1 = document.createElement("a");
+			let dropdownMenuItemText1 = document.createTextNode("個人首頁");
+
+			dropdownMenuItemLink1.appendChild(dropdownMenuItemText1);
+
+			dropdownMenuItemLink1.href="/post/member?account="+account
+			dropdownMenuItemLink1.setAttribute("class","dropdown-item");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink1);
+
+
+
+
+			let dropdownMenuItemLink2 = document.createElement("a");
+			let dropdownMenuItemText2 = document.createTextNode("個人帳戶");
+
+			dropdownMenuItemLink2.appendChild(dropdownMenuItemText2);
+			dropdownMenuItemLink2.href="/member"
+			dropdownMenuItemLink2.setAttribute("class","dropdown-item");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink2);
+
+			let dropdownMenuItemLink3 = document.createElement("a");
+			let dropdownMenuItemText3 = document.createTextNode("登出");
+			dropdownMenuItemLink3.setAttribute("class","dropdown-item");
+			dropdownMenuItemLink3.appendChild(dropdownMenuItemText3);
+			dropdownMenuItemLink3.setAttribute("onclick","logout()");
+
+			dropdownMenu.appendChild(dropdownMenuItemLink3);
+
+			dropdownList.appendChild(dropdownMenu);
+
+			node.parentNode.replaceChild(dropdownList,node)
+		}
+
+		function logout(){
+			delCookie("access_token");
+			window.location="/"
+		}
+		function delCookie(name) {
+		    document.cookie = document.cookie = name +'=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+		};
+
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		function isLogin(cookie, callback) {
+
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin/special', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				callback(res);
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+
+		function newEmailSave(event) {
+    		event.preventDefault();
+    		
+    		let accessToken = getCookie("access_token");
+
+    		let xhr = new XMLHttpRequest();
+
+    		let requestData = {
+				"email": emailInput.value,
+			    "password": emailPasswordInput.value
+			}
+
+			console.log(requestData);
+
+			requestData = JSON.stringify(requestData);
+		 	xhr.open("PATCH", "/api/1.0/member/email", false);
+			xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+			xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+		    xhr.onreadystatechange = function () {  
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+
+			        let result = JSON.parse(xhr.responseText);
+			        console.log(result);
+
+
+			        if ( result.updateResult ) {
+			        	clearHelp()
+			        	
+						swal("請進行確認!", `E-Mail 修改已進入驗證階段，請至 ${result.email} 進行驗證！`, "info")
+			        	.then(() => {
+							information.setAttribute("class","alert alert-warning");
+							information.innerText = result.message;
+							window.scrollTo(0,0);
+						});
+
+			        } else {
+
+			        	switch( result.type ) {
+							case 0:
+								clearHelp()
+								emailHelp.innerText = result.message;
+								break;
+							case 1:
+								clearHelp()
+								emailPasswordHelp.innerText = result.message;
+								break;
+							case 2:
+								clearHelp()
+								information.setAttribute("class","alert alert-warning");
+								information.innerText = result.message;
+								break;
+						}
+
+			        }
+			    }
+		    };
+
+		    xhr.send(requestData);
+		}
+
+		function newPasswordSave(event) {
+    		event.preventDefault();
+    		
+    		let accessToken = getCookie("access_token");
+
+    		let xhr = new XMLHttpRequest();
+
+    		let requestData = {
+				"newPassword": passwordInput.value,
+			    "newPasswordConfirm": newPasswordConfirmInput.value,
+			    "currentPassword": currentPasswordInput.value
+			}
+
+			console.log(requestData);
+
+			requestData = JSON.stringify(requestData);
+		 	xhr.open("PATCH", "/api/1.0/member/password", false);
+			xhr.setRequestHeader("Authorization", "Bearer " + accessToken);
+			xhr.setRequestHeader("Content-Type", "application/json; charset=UTF-8");
+
+		    xhr.onreadystatechange = function () {  
+			    if (xhr.readyState === 4 && xhr.status === 200) {
+
+			        let result = JSON.parse(xhr.responseText);
+			        console.log(result);
+
+
+			        if ( result.updateResult ) {
+			        	clearHelp()
+			        	swal("修改成功!", "密碼已修正成功! 請重新登入。", "success")
+			        	.then(() => {
+							window.location = "/member/signin.html";
+						});
+
+			        } else {
+
+			        	switch( result.type ) {
+							case 0:
+								clearHelp()
+								passwordHelp.innerText = result.message;
+								break;
+							case 1:
+								clearHelp()
+								passwordConfirmHelp.innerText = result.message;
+								break;
+							case 2:
+								clearHelp()
+								currentPasswordConfirmHelp.innerText = result.message;
+								break;
+							case 3:
+								clearHelp()
+								information.setAttribute("class","alert alert-warning");
+								information.innerText = result.message;
+								break;
+						}
+
+			        }
+			    }
+		    };
+
+		    xhr.send(requestData);
+		}
+	</script>
+	<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</body>

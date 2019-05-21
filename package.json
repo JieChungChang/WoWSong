@@ -1,0 +1,51 @@
+{
+  "name": "obeobeko",
+  "version": "1.0.0",
+  "description": "AppWorks School personal project obeobeko. Clone from https://www.obeobeko.com",
+  "main": "index.js",
+  "dependencies": {
+    "aws-sdk": "^2.438.0",
+    "cookie-parser": "^1.4.4",
+    "crypto": "^1.0.1",
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "google-auth-library": "^3.1.2",
+    "multer": "^1.4.1",
+    "multer-s3": "^2.9.0",
+    "mysql": "^2.16.0",
+    "mysql2": "^1.6.5",
+    "nodemailer": "^6.0.0",
+    "redis": "^2.8.0",
+    "request": "^2.88.0",
+    "sequelize": "^5.3.3",
+    "socket.io": "^2.2.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-google": "^0.12.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^9.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "mocha": "^6.1.4",
+    "supertest": "^4.0.2"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JieChungChang/obeobeko-clone.git"
+  },
+  "keywords": [
+    "obeobeko"
+  ],
+  "author": "jc",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JieChungChang/obeobeko-clone/issues"
+  },
+  "homepage": "https://github.com/JieChungChang/obeobeko-clone#readme"
+}

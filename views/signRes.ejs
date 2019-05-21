@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="google-signin-client_id" content="288950503271-lcguojausmbr9bosbces66ub0ua6ig2i.apps.googleusercontent.com">
+</head>
+<body>
+
+<header>
+	<h1><%= signResult.name %>，您好！ 歡迎您加入謳歌</h1>
+	<div>
+		<% if (!signResult.verify) {%> 
+			<h3>您的帳號 <%= signResult.account%> 尚未完成 Email 認證</h3>
+			<p>請於一小時內至您的電子信箱 <a href = "mailto: <%= signResult.email%>"><%= signResult.email%></a> 完成認證動作以免權益受損。</p>
+		<% } else { %>
+			<h3>您的帳號 <%= signResult.account%> 已經完成 Email 認證</h3>
+		<%}%>
+	</div>
+</header>
+
+</br>
+</br>
+
+</body>

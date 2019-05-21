@@ -1,0 +1,107 @@
+/* banner start */
+.banner {
+    position:relative;
+	background-image: url('/img/rick-proctor-568067-unsplash.jpg');
+	background-repeat: no-repeat;
+	background-position: center;
+    background-size: cover;
+    
+    -webkit-filter:opacity(.85);
+    -webkit-filter:blur(1.2px);
+
+  	margin: 0;
+  	padding: 0;
+  	height: 440px;
+	width: 100%;
+}
+
+.banner-heading {
+    margin: 0 auto;
+    position: absolute;
+    top: 100px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+	color: #FFF;
+	width: 40vw;
+    height: 320px;
+    
+	text-align: center;
+}
+
+.banner-heading div {
+    position: relative;
+    width: 40vw;
+    height: 200px;
+}
+
+.banner-heading h1 {
+    font-size: 80px;
+	margin-bottom: 5px;
+}
+
+.banner-subheading {
+	font-size: 24px;
+}
+
+hr.small {
+	max-width: 100px;
+    margin: 15px auto;
+    border-width: 4px;
+    border-color: #fff;
+    border-style: solid;
+
+}
+/* banner end */
+
+/* Radio Station */
+#carouselExampleIndicators {
+    background-color: #ccc;
+}
+.carousel-caption{
+    color:#555;
+    position:static;
+}
+.carousel-caption img{
+    margin:auto;
+
+}
+.carousel-caption h5 {
+    margin-top: 15px;
+}
+
+#radioRoomToggle{
+	display: block;
+	position: relative; 
+	top:50%;
+	width: 220px;
+	margin: 0 auto;
+
+	color: #FFF;
+	font-size: 20px;
+	text-align: center;
+
+	cursor: pointer;
+}
+#radioRoomToggle p {
+	margin:0px;
+}
+#radioRoomToggle img {
+	width: 36px;
+}
+/* Radio Station */
+
+/* Load more posts */
+#loadPostBtnBlock {
+	padding-top: 20px;
+}
+
+#loadPostBtnBlock a {
+	color: #636b6f;  
+    background-color: #fff;
+}
+
+#loadPostBtnBlock a:hover {
+	color: #FFF;
+	background-color:#6cc5d9;
+}

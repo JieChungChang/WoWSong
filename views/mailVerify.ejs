@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="google-signin-client_id" content="288950503271-lcguojausmbr9bosbces66ub0ua6ig2i.apps.googleusercontent.com">
+</head>
+<body>
+
+<header>
+	<h1>認證成功 歡迎您加入謳歌</h1>
+	<div>
+		<h3><%= renderData.name %>，您好！ 您的電子信箱 <a href = "mailto: <%= renderData.email%>"><%= renderData.email%></a></h3>
+		<img src="<%= renderData.picture %>" />
+		<button onclick="location.href = '<%=renderData.page%>'" >看看您的塗鴉牆</button>
+	</div>
+</header>
+
+</br>
+</br>
+
+</body>

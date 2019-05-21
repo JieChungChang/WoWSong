@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ObeObeKo 謳歌 - 錯誤</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+	<link href="css/header.css" rel="stylesheet">
+</head>
+<body>
+	<header class="main-header clearfix">
+		<a class="header-icon-link" href="./"><img class="header-icon" alt="ObeObeKo icon" src="img/logo_blue_65.png">謳歌</a>
+        
+        <div class="flex-container"></div>
+
+        <ul class="navigation-list">
+         	<li><a href="./">首頁</a></li>
+            <li><a href="/member/signin.html">登入</a></li>
+            <li><a href="/member/signup.html">註冊</a></li>
+        </ul>
+	</header>
+	<div class="header-banner">
+		<div class="site-heading">
+			<h1>謳歌</h1>
+			<hr class="small" style="width:160px;">
+			<span class="subheading">你有哈草嗎？ 沒有？ 那我們一起謳歌</span>
+		</div>
+	</div>
+	<div class="body" style="margin: 30px auto;">
+		<h2> Page Not Found </h2>
+		<p>請確認網址是否有錯誤。</p>
+	</div>
+	<script type="text/javascript">
+		let access_token = "";
+
+		let postBlock = document.getElementById("member-post-block");
+		let navList1  = document.querySelectorAll(".navigation-list li a")[1];
+		let navList2  = document.querySelectorAll(".navigation-list li a")[2];
+
+
+		let ytPlayerBlock = document.getElementById("ytPlayer");
+		let ytImageBlock  = document.getElementById("ytImage");
+
+		function getCookie(name) {
+			let cookie = {};
+			document.cookie.split(';').forEach(function(el) {
+				let [k,v] = el.split('=');
+				cookie[k.trim()] = v;
+			})
+			return cookie[name];
+		}
+
+		function isLogin(cookie) {
+			let data = {
+				method: 'get',
+				headers: {
+					"Accept": "application/json",
+					"Authorization": "Bearer "+cookie
+				}
+			}
+
+			fetch('/api/1.0/member/isLogin', data)
+			.then((response) => {
+				return response.json(); 
+			})
+			.then(res=>{
+				if (res.result){
+					console.log(res.memberData);
+
+			    	navList1.setAttribute("href", "/post/createPost.html");
+			    	navList2.setAttribute("href", "/post/member?account="+res.memberData.account);
+
+			    	navList1.innerText = "發表";
+			    	navList2.innerText = res.memberData.name;
+				} else {
+					console.log(res.message);
+					window.location="/member/signin.html";
+				}
+			})
+			.catch((err) => {
+				console.log('錯誤:', err);
+			});
+		}
+		document.addEventListener("DOMContentLoaded", function(event) {
+		    access_token = getCookie("access_token");
+		   	
+		   	if (!getCookie("access_token")) { //如果連 Access Token 都沒有就導到登入頁面
+				window.location="/member/signin.html";
+
+			} else { //如果有 Access Token 先確認是不是有效的
+			   	isLogin(access_token); //用 Token 來確認 對 header處理
+			}
+		});
+	</script>
+</body>
+</html>
