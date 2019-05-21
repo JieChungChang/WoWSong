@@ -45,8 +45,8 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
     3. Sends member validation mail with Gmail API
     4. Supports YouTube Player API on browser
     5. Gets video information from YouTube Data API
-    6. Support Facebook Sharing
-    7. Follow Google coding style
+    6. Supports Facebook Sharing
+    7. Follows Google coding style
 
 ## Database Schema
 ![Database structure](https://user-images.githubusercontent.com/29995663/58114694-e4c38400-7c2a-11e9-9b63-c35f2870a8ae.png)
@@ -64,16 +64,16 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
     3. One post have many likes
 
 * member_like table (FK: id, PK1: post_id, PK2: member_account)
-    1. One member belongs to many member_like 
-    2. One post belongs to many member_like 
+    1. One member_like belongs to a member  
+    2. One member_like belongs to a post  
 
 * comment table(FK: id, PK1: post_id, PK2: member_account)
-    2. One post have many comments
-    3. One post have many likes
+    1. One comment belongs to a post
+    2. One comment belongs to a member
 
 * follow table(FK: id, PK1: acoount, PK2: follow_account)
-    2. One post have many comments
-    3. One post have many likes
+    1. One follow belongs to a member
+    2. One follow belongs to a follower
 
 # WoWSong-API-Doc
 
