@@ -13,8 +13,9 @@ Users on the WoWSong can like the post, leave their comment on the post, and fol
 
 ## Original Idea - Realtime Mutil-User Radio Station
 All posts can be built to a playlist, users can not only listen to playlist alone but open radio station and listen to a playlist with others. In the radio station, song broadcast to every client's browser synchronously by using the **Socket.IO** library.
-<div style="width:100%;height:0;padding-bottom:63%;position:relative;"><iframe src="https://giphy.com/embed/39jN2ft0DabsXYQIoG" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div><p><a href="https://giphy.com/gifs/39jN2ft0DabsXYQIoG">via GIPHY</a></p>
-<div style="width:100%;height:0;padding-bottom:63%;position:relative;"><iframe src="https://giphy.com/embed/YUxfPlA5ox8wX0Nlog" width="100%" height="100%" style="position:absolute" frameBorder="0" class="giphy-embed" allowFullScreen></iframe></div><p><a href="https://giphy.com/gifs/YUxfPlA5ox8wX0Nlog">via GIPHY</a></p>
+![Radio1](https://user-images.githubusercontent.com/29995663/58114212-dc1e7e00-7c29-11e9-8c41-9849d50d0d72.gif)
+![Radio2](https://user-images.githubusercontent.com/29995663/58114253-fc4e3d00-7c29-11e9-8755-f8a5670e5054.gif)
+
 
 ## Try It Now
     Test account: test1234
