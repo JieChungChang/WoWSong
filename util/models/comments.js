@@ -1,10 +1,10 @@
 module.exports = (sequelize, DataTypes) => {
   const Comment = sequelize.define('comment', 
   {
-    post_id: DataTypes.BIGINT(60),
-    member_account: DataTypes.STRING(60),
+    post_id: DataTypes.BIGINT(20),
+    member_account: DataTypes.STRING(20),
     comment: DataTypes.STRING,
-    time: DataTypes.BIGINT(60)
+    time: DataTypes.BIGINT(20)
   }, 
   {
     paranoid: true,

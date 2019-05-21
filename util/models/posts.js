@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
   const Post = sequelize.define('post', 
   {
-    member_account: DataTypes.STRING(60),
+    member_account: DataTypes.STRING(20),
     video_id: DataTypes.STRING,
     title: DataTypes.STRING,
     picture: DataTypes.STRING,
     content: DataTypes.STRING, 
-    time: DataTypes.BIGINT(60),
+    time: DataTypes.BIGINT(20),
     view_times: DataTypes.BIGINT(20)
   }, 
   {

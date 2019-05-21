@@ -3,11 +3,11 @@ module.exports = (sequelize, DataTypes) => {
   {
     provider: DataTypes.STRING(20),
     name: DataTypes.STRING(20),
-    account: DataTypes.STRING(60),
+    account: DataTypes.STRING(20),
     email:DataTypes.STRING(40),
     password: DataTypes.STRING,
     access_token: DataTypes.STRING, 
-    access_expired: DataTypes.BIGINT(60),
+    access_expired: DataTypes.BIGINT(20),
     picture: DataTypes.STRING,
     verify: DataTypes.BOOLEAN
   }, 
