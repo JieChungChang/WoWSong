@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   {
     provider: DataTypes.STRING(20),
     name: DataTypes.STRING(20),
-    account: DataTypes.STRING(20),
+    account: DataTypes.STRING(60),
     email:DataTypes.STRING(40),
     password: DataTypes.STRING,
     access_token: DataTypes.STRING, 
