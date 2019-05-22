@@ -17,11 +17,11 @@ Demo - Open and Join a radio station
 1. Left screen is radio master to open a new radio station
 2. Right screen is a radio client join a exist radio station
 
-![Radio1](https://user-images.githubusercontent.com/29995663/58114212-dc1e7e00-7c29-11e9-8c41-9849d50d0d72.gif)
+![Radio1](https://media.giphy.com/media/39jN2ft0DabsXYQIoG/giphy.gif)
 
 Demo - Radio master (left screen) broadcast content to client(right screen) synchronously
 
-![Radio2](https://user-images.githubusercontent.com/29995663/58114253-fc4e3d00-7c29-11e9-8755-f8a5670e5054.gif)
+![Radio2](https://media.giphy.com/media/YUxfPlA5ox8wX0Nlog/giphy.gif)
 
 
 ## Try It Now
@@ -32,13 +32,13 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 
 ![Backend Architecture](https://user-images.githubusercontent.com/29995663/58113722-c2306b80-7c28-11e9-9eeb-94cb31b4b78a.png)
 
-* Designed RESTful APIs for the client to communicate with the Backend service.
-* Built real-time multi-user radio station by Socket.IO.
-* Used Session with Redis to prevent video views cheating.
+* Designed **RESTful APIs** for the client to communicate with the Backend service.
+* Built real-time multi-user radio station by **Socket.IO**.
+* Used Session with **Redis** to prevent video views cheating.
 * Normalized database, added Transaction and added Connection Pool on database query.
-* Used ORM (Sequelize) design to enhance the readability of code and also prevent SQL injection.
-* Stored users' headshot and video snapshot in AWS S3  for reducing storage costs.
-* Used Nginx for reverse Proxy server 
+* Used **ORM** (Sequelize) design to enhance the readability of code and also prevent SQL injection.
+* Stored users' headshot and video snapshot in **AWS S3**  for reducing storage costs.
+* Used **Nginx** for reverse Proxy server 
 * Third-Party APIs:
     1. Supports Facebook / Google Login
     2. Detects abusive traffic with reCAPTCHA API
@@ -77,6 +77,8 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 
 # WoWSong-API-Doc
 
+RESTful APIs for WoWSong 
+
 ### Host Name
 
 obeobeko.j-zone.xyz
@@ -86,3 +88,295 @@ obeobeko.j-zone.xyz
 1.0
 
 ----
+
+### Member Posts API
+
+* **End Point:** `/post/all`
+
+* **Method:** `GET`
+
+* **Query Parameters**
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| paging | String | Paging for request next page. |
+
+* **Request Example:**
+
+  `https://[HOST_NAME]/api/[API_VERSION]/post/all?paging=0`
+
+* **Success Response: 200**
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| nextPage | Number | Next page number. If there are no more pages, server will return empty string. |
+| rawData | Array | Array of `Post Object`. |
+
+* **Success Response Example:**
+
+```
+  "result": {
+    "nextPage": 1,
+    "rawData": [
+      {
+        "id": 47,
+        "content": "超短音樂，Transaction 測試！！！！！！",
+        "title": "超短音樂",
+        "picture": "https://s3-us-west-2.amazonaws.com/obeobeko-clone/ytimage/yt-47",
+        "account": "jcchang",
+        "time": "11:42 May 7, 2019",
+        "video_id": "lg1CnjB-E7M",
+        "like_count": 2,
+        "comment_count": 5,
+        "view_times": 126
+      },
+      {
+        "id": 46,
+        "content": "Ju 粉通通站起來～！！！",
+        "title": "20190323 大港開唱 - 吳卓源 Julia Wu - rgry Talk + 買榜",
+        "picture": "https://s3-us-west-2.amazonaws.com/obeobeko-clone/ytimage/yt-46",
+        "account": "jcchang",
+        "time": "23:22 April 26, 2019",
+        "video_id": "3ebIZZQbKkI",
+        "like_count": 3,
+        "comment_count": 3,
+        "view_times": 58
+      },
+      {
+        "id": 44,
+        "content": "Ju 粉站出來！",
+        "title": "【 走到飛 】- ft. Trout Fresh. ØZI. Julia Wu. Kumachan. B.C.W. Barry. Dwagie （Official Music Video)",
+        "picture": "https://i.ytimg.com/vi/Rne4oL1NZrU/hqdefault.jpg",
+        "account": "fb_JCC",
+        "time": "15:35 April 24, 2019",
+        "video_id": "Rne4oL1NZrU",
+        "like_count": 1,
+        "comment_count": 1,
+        "view_times": 20
+      }
+    ]
+  }
+
+```
+
+* **Error Response: 4XX**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| error | String | Error message. |
+
+
+* **Error Response Example:**
+```
+"result": {
+    "error": "Unavailable Query String"
+  }
+```
+
+----
+
+### Member Add New Posts API
+
+* **End Point:** `/post`
+
+* **Method:** `POST`
+
+* **Request Headers:**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| Content-Type | String | Only accept `application/json`. |
+| Authorization | String | Access token preceding `Bearer `. For example: `Bearer x48aDD534da8ADSD1XC4SD5S` |
+
+* **Request Body**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| video_id | String | Required. YouTube video Id, server will verify with YouTube Data API|
+| content | String | Required and at least 5 words. Comment from the user on the post |
+
+* **Request Body Example:**
+
+```
+{
+  "video_id": "Rne4oL1NZrU",
+  "content": "Ju 粉站出來！",
+}
+```
+
+* **Success Response: 200**
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| id | Number | Post ID |
+| member_account | String | Member who add this post. |
+| video_id | String | Verified YouTube video ID. |
+| title | String | Video title provided by YouTube Data API. |
+| picture | String | YouTube video shapshot URL. |
+| content | String | Comment from the user on the post. |
+| time | Number | The moment member add new post. Date time number. |
+| view_times | Number | Record how many view on this video. |
+
+* **Success Response Example:**
+
+```
+result: { 
+   "id": 44,
+   "member_account": "jcchang",
+   "video_id": "Rne4oL1NZrU",
+   "title": "【走到飛 】- ft. Trout Fresh. ØZI. Julia Wu. Kumachan. B.C.W. Barry. Dwagie （Official Music Video)",
+   "picture": "https://i.ytimg.com/vi/Rne4oL1NZrU/hqdefault.jpg",
+   "content": "Ju 粉站出來！",
+   "time": 1558515410848,
+   "view_times": 0 
+ }
+```
+
+* **Error Response: 4XX**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| error | String | Error message. |
+
+* **Error Response Example:**
+```
+{
+  "error": "Can't get video title."
+}
+```
+
+----
+
+### Member Change Posts Content API
+
+* **End Point:** `/post`
+
+* **Method:** `PATCH`
+
+* **Request Headers:**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| Content-Type | String | Only accept `multipart/form-data`. |
+| Authorization | String | Access token preceding `Bearer `. For example: `Bearer x48aDD534da8ADSD1XC4SD5S` |
+
+* **Request Body**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| post_id | Number | Required and need to be number. post ID member want to change. |
+| content | String | Required and At least 5 words. Comment user want to change to. |
+| file | Buffer | Image user want to change the video snapshot.  |
+
+* **Request Body Example:**
+
+```
+{
+  "post_id": 44,
+  "content": "Ju 粉都站不起來！",
+  "file": 104, 101, 108, 108...
+}
+```
+
+* **Success Response: 200**
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| updateResult | Boolean | Result of update post. |
+| post_id | Number | ID of updated post. |
+| message | String | Update message. |
+
+* **Success Response Example:**
+
+```
+result: { 
+   "updateResult": true,
+   "post_id": 44,
+   "message": "Update Post Successfully"
+ }
+```
+```
+result: { 
+   "updateResult": flase,
+   "post_id": 44,
+   "message": "Upload to S3 Fail"
+ }
+```
+
+* **Error Response: 500**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| error | String | Error message. |
+
+* **Error Response Example:**
+```
+{
+   "updateResult": false, 
+   "message": "Error"
+}
+```
+
+----
+
+### Member Delete Posts API
+
+* **End Point:** `/post`
+
+* **Method:** `DELETE`
+
+* **Request Headers:**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| Content-Type | String | Only accept `application/json`. |
+| Authorization | String | Access token preceding `Bearer `. For example: `Bearer x48aDD534da8ADSD1XC4SD5S` |
+
+* **Request Body**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| post_id | Number | Required and need to be number. post ID member want to delete. |
+
+* **Request Body Example:**
+
+```
+{
+  "post_id": 44
+}
+```
+
+* **Success Response: 200**
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| result | Boolean | Result of delete post. 
+| message | String | Delete message. |
+
+* **Success Response Example:**
+
+```
+result: { 
+   "updateResult": true,
+   "message": "Post 44 had been deleted"
+ }
+```
+```
+result: { 
+   "updateResult": false,
+   "message": "Can not find post"
+ }
+```
+
+* **Error Response: 500**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| error | String | Error message. |
+
+* **Error Response Example:**
+```
+{
+   "message": "Delete post failed"
+}
+```
