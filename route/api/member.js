@@ -110,9 +110,6 @@ router.post('/signup', (req, res) => {
                         });
                         const signResult = {
                             signupResult: true,
-                            status: 3,
-                            name: name,
-                            account: account,
                             email: mail
                         };
                         res.cookie('access_token', access_token);

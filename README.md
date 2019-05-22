@@ -51,7 +51,7 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 ## Database Schema
 ![Database structure](https://user-images.githubusercontent.com/29995663/58114694-e4c38400-7c2a-11e9-9b63-c35f2870a8ae.png)
 
-###Database Normalization
+### Database Normalization
 * member table (FK: id)
     1. One member has many posts
     2. One member can like many posts (many to many rule see member_like table)
@@ -77,7 +77,8 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 
 # WoWSong-API-Doc
 
-RESTful APIs for WoWSong 
+RESTful APIs for WoWSong. 
+This project have more than 20 APIs This document only shows part of member and post APIs.  
 
 ### Host Name
 
@@ -162,7 +163,7 @@ obeobeko.j-zone.xyz
 * **Error Response: 4XX**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | error | String | Error message. |
 
 
@@ -184,14 +185,14 @@ obeobeko.j-zone.xyz
 * **Request Headers:**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | Content-Type | String | Only accept `application/json`. |
 | Authorization | String | Access token preceding `Bearer `. For example: `Bearer x48aDD534da8ADSD1XC4SD5S` |
 
 * **Request Body**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | video_id | String | Required. YouTube video Id, server will verify with YouTube Data API|
 | content | String | Required and at least 5 words. Comment from the user on the post |
 
@@ -235,7 +236,7 @@ result: {
 * **Error Response: 4XX**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | error | String | Error message. |
 
 * **Error Response Example:**
@@ -256,14 +257,14 @@ result: {
 * **Request Headers:**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | Content-Type | String | Only accept `multipart/form-data`. |
 | Authorization | String | Access token preceding `Bearer `. For example: `Bearer x48aDD534da8ADSD1XC4SD5S` |
 
 * **Request Body**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | post_id | Number | Required and need to be number. post ID member want to change. |
 | content | String | Required and At least 5 words. Comment user want to change to. |
 | file | Buffer | Image user want to change the video snapshot.  |
@@ -306,7 +307,7 @@ result: {
 * **Error Response: 500**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | error | String | Error message. |
 
 * **Error Response Example:**
@@ -328,14 +329,14 @@ result: {
 * **Request Headers:**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | Content-Type | String | Only accept `application/json`. |
 | Authorization | String | Access token preceding `Bearer `. For example: `Bearer x48aDD534da8ADSD1XC4SD5S` |
 
 * **Request Body**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | post_id | Number | Required and need to be number. post ID member want to delete. |
 
 * **Request Body Example:**
@@ -371,12 +372,104 @@ result: {
 * **Error Response: 500**
 
 | Field | Type | Description |
-| :---: | :---: | :---: |
+| :---: | :---: | :--- |
 | error | String | Error message. |
 
 * **Error Response Example:**
 ```
 {
    "message": "Delete post failed"
+}
+```
+
+----
+
+### Member User Sign Up API
+
+* **End Point:** `/member/nativesignin`
+
+* **Method:** `POST`
+
+* **Request Headers:**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| Content-Type | String | Only accept `application/json`. |
+
+* **Request Body**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| name | String | Required. |
+| account | String |  Required. |
+| mail | String | Required. |
+| password | String | Required. |
+| passwordConfirm | String | Required. |
+| recaptchaRes | String | Required. Client will get recaptcha response string after pass the test. |
+
+* **Request Body Example:**
+
+```
+{
+   "name": "IamTestUser",
+   "account": "test1234",
+   "mail": "test.mail@address.com",
+   "password": "testpwd1234",
+   "passwordConfirm": "testpwd1234",
+   "recaptchaRes": "recaptcha response string"
+}
+```
+
+* **Success Response: 200**
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| signupResult | Boolean | True for user sign up successfully. |
+| account | String | Successfully sign up member account. |
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| signupResult | Boolean | False for user sign up failed. |
+| status | Number | Sign up fail part. Check status table below. |
+| msg | String | Sign up fail reson. |
+
+* **Sign Up Failed Status Table**
+
+| Status | Failed Part |
+| :---: | :---: |
+| 0 | Name invalidate, cannot input empty string. |
+| 1 | Account require at least 6 and less than 15 words without UTF-8 characters. |
+| 2 | Email value need to follow right email address format. |
+| 3 | Password require at least 6 and less than 20 words include one number and one English alphabet without special characters and UTF-8 characters |
+| 4 | Password confirm value need to match password value. |
+| 5 | reCAPTCHA test response validate fail or empty value. |
+
+* **Success Response Example:**
+
+```
+{
+   signupResult: true,
+   account: "test1234",
+}
+```
+
+```
+{
+   signupResult: false,
+   status: 5,
+   msg: 'reCAPTCHA 驗證失敗'
+}
+```
+
+* **Error Response: 500**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| error | String | Error message. |
+
+* **Error Response Example:**
+```
+{
+  "error": "Invalid token."
 }
 ```
