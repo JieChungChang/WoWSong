@@ -110,7 +110,7 @@ router.post('/signup', (req, res) => {
                         });
                         const signResult = {
                             signupResult: true,
-                            email: mail
+                            account: account
                         };
                         res.cookie('access_token', access_token);
                         res.status(200).send(signResult);

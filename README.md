@@ -78,7 +78,7 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 # WoWSong-API-Doc
 
 RESTful APIs for WoWSong. 
-This project have more than 20 APIs This document only shows part of member and post APIs.  
+WoWSong have more than 30 APIs. This document only shows part of member and post APIs.  
 
 ### Host Name
 
