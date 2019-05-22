@@ -9,6 +9,7 @@ Users share their favorite music by Youtube link and write their comment for it.
 
 Users on the WoWSong can like the post, leave their comment on the post, and follow the author. The author can edit, delete the post. All actions above are stored in **MySQL database** and all of the information can be seen by designed **RESTful APIs**.
 
+![Basic](https://user-images.githubusercontent.com/29995663/58178344-9bca0900-7cd8-11e9-9f7e-623683a09467.gif)
 
 ## Original Idea - Realtime Mutil-User Radio Station
 All posts can be built to a playlist, users can not only listen to playlist alone but open radio station and listen to a playlist with others. In the radio station, song broadcast to every client's browser synchronously by using the **Socket.IO** library.
@@ -17,11 +18,9 @@ Demo - Open and Join a radio station
 1. Left screen is radio master to open a new radio station
 2. Right screen is a radio client join a exist radio station
 
-![Radio1](https://media.giphy.com/media/39jN2ft0DabsXYQIoG/giphy.gif)
-
 Demo - Radio master (left screen) broadcast content to client(right screen) synchronously
 
-![Radio2](https://media.giphy.com/media/YUxfPlA5ox8wX0Nlog/giphy.gif)
+![Radio1](https://user-images.githubusercontent.com/29995663/58178176-47bf2480-7cd8-11e9-8020-d7e5532f0b44.gif)
 
 
 ## Try It Now
@@ -436,7 +435,7 @@ result: {
 * **Sign Up Failed Status Table**
 
 | Status | Failed Part |
-| :---: | :---: |
+| :---: | :--- |
 | 0 | Name invalidate, cannot input empty string. |
 | 1 | Account require at least 6 and less than 15 words without UTF-8 characters. |
 | 2 | Email value need to follow right email address format. |
@@ -471,5 +470,85 @@ result: {
 ```
 {
   "error": "Invalid token."
+}
+```
+
+----
+
+### Member Change Basic Information API
+
+* **End Point:** `/member/information`
+
+* **Method:** `PATCH`
+
+* **Request Headers:**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| Content-Type | String | Only accept `application/json`. |
+| Authorization | String | Access token preceding `Bearer `. For example: `Bearer x48aDD534da8ADSD1XC4SD5S` |
+
+* **Request Body**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| name | String | Required. |
+| account | String | Required. |
+
+* **Request Body Example:**
+
+```
+{
+  "name":"anotherTestUser",
+  "account":"test1234567",
+}
+```
+
+* **Success Response: 200**
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| updateResult | Boolean | Result of update basic information. |
+| udapteData | Object | Include name and account after sucessfully update. |
+| message | String | Information of update. |
+
+| Field | Type | Description |
+| :---: | :---: | :--- |
+| updateResult | Boolean | Result of update basic information. |
+| type | Number | Include name and account after sucessfully update. |
+| message | String | Information of update. |
+
+
+* **Success Response Example:**
+
+```
+{
+    updateResult: true,
+    udapteData: {
+        name: name, 
+        account: account
+    },
+    message: 'Update Post Successfully!'
+}
+```
+
+```
+{
+   updateResult: false,
+   type: 1,
+   message: '此帳號已經存在，請重新輸入'
+}
+```
+
+* **Error Response: 500**
+
+| Field | Type | Description |
+| :---: | :---: | :---: |
+| error | String | Error message. |
+
+* **Error Response Example:**
+```
+{
+  "error": "Unexpect error."
 }
 ```
