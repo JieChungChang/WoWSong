@@ -17,7 +17,7 @@ client.on('connect', function() {
  * @param {*} duration
  */
 function convert_time(duration) {
-    const a = duration.match(/\d+/g);
+    let a = duration.match(/\d+/g);
 
     if (duration.indexOf('M') >= 0 && duration.indexOf('H') == -1 && duration.indexOf('S') == -1) {
         a = [0, a[0], 0];
