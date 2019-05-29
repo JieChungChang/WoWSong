@@ -3,11 +3,13 @@ const express       = require('express');
 const router        = express.Router();
 const request       = require('request');
 const db            = require('../../util/sequelize.js');
-const uploadImg     = require('../../controllers/imgUpload.js');
 const getAll        = require('../../controllers/post.js').getAll;
 const tokenCheck    = require('../../controllers/crypto.js').tokenCheck;
 const validations   = require('../../controllers/validations.js');
 const ytApiKey      = require('../../util/.key/keys.js').ytApiKey;
+const S3imgHandle   = require('../../controllers/S3imgHandle.js');
+const uploadImg     = S3imgHandle.uploadImg;
+const deleteImg     = S3imgHandle.deleteImg;
 
 // 取得全部 POST 頁面 API
 router.get('/all', (req, res) => {
@@ -108,7 +110,14 @@ router.delete('/', (req, res) => {
                     transaction: t
                 })
                 .then((deletetResult)=> {
-                    return res.status(200).send({result: true, message: result.posts.id});
+                    const image = result.posts[0].picture.split('/').pop();
+                    deleteImg.s3delete(image, 'ytimage', (s3DeleteResult)=> {
+                        if (s3DeleteResult) {
+                            return res.status(200).send({result: true, message: result.posts.id});
+                        } else {
+                            return res.status(200).send({result: true, message: 'S3 update failed!'});
+                        }
+                    });
                 })
                 .catch(function(err) {
                     t.rollback();
@@ -146,7 +155,7 @@ router.patch('/', uploadImg.multiPartHandle.single('file'), (req, res) => {
     .then((result) => {
         if (result) {// 如果帳號 與 post 作者符合 就可以更新
             if ( req.file ) {// 如果 user 有改照片 S3 才需要上傳檔案
-                uploadImg.s3upload(req.file.buffer, 'yt-'+post_id, 'ytimage', (uploadResult, url)=>{
+                uploadImg.s3upload(req.file.buffer, result.posts[0].picture.split('/').pop(), 'yt-'+post_id+'-'+Date.now(), 'ytimage', (uploadResult, url)=>{
                     if (uploadResult) {
                         console.log(url);
                         console.log(content);
