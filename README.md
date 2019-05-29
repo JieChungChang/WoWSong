@@ -36,8 +36,8 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 * Used Session with **Redis** to prevent video views cheating.
 * Normalized database, added Transaction and added Connection Pool on database query.
 * Used **ORM** (Sequelize) design to enhance the readability of code and also prevent SQL injection.
-* Stored users' headshot and video snapshot in **AWS S3**  for reducing storage costs.
-* Used **AWS CloudFront** CDN to cache user's head shot and post image for decreasing loading latency.
+* Stored users' head shot and video snapshot in **AWS S3**  for reducing storage costs.
+* Used **AWS CloudFront** CDN to cache user's head shot and post snapshot for decreasing loading latency.
 * Used **Nginx** for reverse Proxy server 
 * Third-Party APIs:
     1. Supports Facebook / Google Login
