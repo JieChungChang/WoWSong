@@ -6,6 +6,7 @@ const upload  = multer({storage:storage});
 const aws = require('aws-sdk');
 const awsCredentials = require('../util/.key/keys.js').awsCredentials;
 const awsS3 = 'https://s3-us-west-2.amazonaws.com/obeobeko-clone/';
+const awsCloudFront = 'https://d2d5hp57fwbckv.cloudfront.net/';
 
 aws.config.update({
     secretAccessKey: awsCredentials.secretAccessKey,
@@ -29,7 +30,9 @@ uploadImg.s3upload = function(body, fileName, bucketType, callback) {
 	        console.log(error);
 	        callback(false, "");
 	    } else {
-	        callback(true, awsS3+bucketType+'/'+fileName);
+			// callback(true, awsS3+bucketType+'/'+fileName);
+			callback(true, awsCloudFront+bucketType+'/'+fileName);
+			
 	    }
 	}); 
 }
