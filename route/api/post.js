@@ -7,6 +7,7 @@ const getAll        = require('../../controllers/post.js').getAll;
 const tokenCheck    = require('../../controllers/crypto.js').tokenCheck;
 const validations   = require('../../controllers/validations.js');
 const ytApiKey      = require('../../util/.key/keys.js').ytApiKey;
+const secrete       = require('../../util/.key/keys.js').secrete;
 const S3imgHandle   = require('../../controllers/S3imgHandle.js');
 const uploadImg     = S3imgHandle.uploadImg;
 const deleteImg     = S3imgHandle.deleteImg;
@@ -155,7 +156,12 @@ router.patch('/', uploadImg.multiPartHandle.single('file'), (req, res) => {
     .then((result) => {
         if (result) {// 如果帳號 與 post 作者符合 就可以更新
             if ( req.file ) {// 如果 user 有改照片 S3 才需要上傳檔案
-                uploadImg.s3upload(req.file.buffer, result.posts[0].picture.split('/').pop(), 'yt-'+post_id+'-'+Date.now(), 'ytimage', (uploadResult, url)=>{
+                const MIME_TYPE_MAP = {
+                    'image/png': 'png',
+                    'image/jpeg': 'jpg',
+                    'image/jpg': 'jpg'
+                };
+                uploadImg.s3upload(req.file.buffer, result.posts[0].picture.split('/').pop(), 'yt-'+post_id+'-'+Date.now()+'.'+MIME_TYPE_MAP[req.file.mimetype], 'ytimage', (uploadResult, url)=>{
                     if (uploadResult) {
                         console.log(url);
                         console.log(content);
@@ -201,6 +207,28 @@ router.patch('/', uploadImg.multiPartHandle.single('file'), (req, res) => {
     .catch(function(err) {
         return res.status(500).send({updateResult: false, message: err});
     });
+});
+
+router.patch('/imageURL', (req, res) => {
+    const {secreteFromAWS}  = req.body;
+    const {imgURL} = req.body;
+    const {post_id} = req.body;
+    if (secreteFromAWS !== secrete) {
+        return res.status(403).send({error: 'Invalidate secrete'});
+    } else {
+        db.posts.update(
+            {picture: imgURL},
+            {where: {id: post_id}}
+        )
+        .then((updateResult)=> {
+            console.log('Update Result:');
+            console.log(updateResult[0]);
+            // updateResult 只會回傳 影響幾行的數字, 所以如果 前端沒更動任何值，不會回傳任何值
+            if (updateResult[0]) {
+                return res.status(200).send({post_id: post_id, message: 'Update Post Successfully!'});
+            };
+        });
+    }
 });
 
 // 計算 account 全部 post 數量 API

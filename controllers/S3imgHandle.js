@@ -14,7 +14,7 @@ aws.config.update({
     region: 'us-west-2'
 });
 
-const s3 = new aws.S3();//要放在這裡才能上傳
+const s3 = new aws.S3();// 要放在這裡才能上傳
 
 const S3ImageHandle = {};
 
@@ -33,14 +33,16 @@ uploadImg.s3upload = function(body, oldFilename, newFileName, bucketType, callba
         } else {
             // callback(true, awsS3+bucketType+'/'+fileName);
             deleteImg.s3delete(oldFilename, bucketType, (deleteResult)=> {
-                callback(true, awsCloudFront+bucketType+'/'+newFileName);
+                const resizedBucket = bucketType;
+                deleteImg.s3delete(oldFilename, resizedBucket, (deleteResult)=> {
+                    callback(true, awsCloudFront+resizedBucket+'/'+newFileName);
+                });
             });
         }
     });
 };
 const deleteImg = {};
 deleteImg.s3delete = function(fileName, bucketType, callback) {
-    console.log('test test test')
     // 刪除檔案囉
     s3.deleteObject({
         Key: fileName,
