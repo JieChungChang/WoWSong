@@ -101,27 +101,49 @@ router.post('/addView', (req, res) => {
             res.send({result: false, message: 'Don\'t have view token!'});
         } else {
             if (addViewTime > rdbResult) {
-                db.sequelize.transaction((t) => {
-                    // chain all your queries here. make sure you return them.
-                    return db.posts.findByPk(post_id, {transaction: t})
-                    .then(function(post) {
-                        return post.increment('view_times', {by: 1});
-                    })
-                    .then((updateesult) => {
-                    // Transaction has been committed
-                    // result is whatever the result of the promise chain returned to the transaction callback
-                        console.log(updateesult);
-                        console.log(updateesult?'View times increment successfully!':'View times increment Fail!');
-                        res.cookie('view_token', '');
-                        res.send({result: true, view_times: updateesult.dataValues.view_times+1});
-                    });
-                }).catch((err) => {
-                    // Transaction has been rolled back
-                    // err is whatever rejected the promise chain returned to the transaction callback
+                // db.posts.update({view_times: db.sequelize.literal('`view_times` + 1')}, {where: {id: post_id}})
+                // .then((updateResult)=> {
+                //     console.log('Update Result:');
+                //     console.log(updateResult[0]);
+                //     res.cookie('view_token', '');
+                //     res.send({result: true});
+                // });
+
+                db.posts.findByPk(post_id)
+                .then(function(post) {
+                    return post.increment('view_times', {by: 1});
+                })
+                .then((updateesult) => {
+                    console.log(updateesult);
+                    console.log(updateesult?'View times increment successfully!':'View times increment Fail!');
+                    res.cookie('view_token', '');
+                    res.send({result: true, view_times: updateesult.dataValues.view_times+1});
+                })
+                .catch((err) => {
                     res.send({result: false, message: 'rollback'});
                 });
-            } else {
-                res.send({result: false, message: 'Haven\'t seen enough time in this vedio!'});
+
+            //     db.sequelize.transaction((t) => {
+            //         // chain all your queries here. make sure you return them.
+            //         return db.posts.findByPk(post_id, {transaction: t})
+            //         .then(function(post) {
+            //             return post.increment('view_times', {by: 1});
+            //         })
+            //         .then((updateesult) => {
+            //         // Transaction has been committed
+            //         // result is whatever the result of the promise chain returned to the transaction callback
+            //             console.log(updateesult);
+            //             console.log(updateesult?'View times increment successfully!':'View times increment Fail!');
+            //             res.cookie('view_token', '');
+            //             res.send({result: true, view_times: updateesult.dataValues.view_times+1});
+            //         });
+            //     }).catch((err) => {
+            //         // Transaction has been rolled back
+            //         // err is whatever rejected the promise chain returned to the transaction callback
+            //         res.send({result: false, message: 'rollback'});
+            //     });
+            // } else {
+            //     res.send({result: false, message: 'Haven\'t seen enough time in this vedio!'});
             }
         }
     });
