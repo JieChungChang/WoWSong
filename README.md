@@ -29,7 +29,7 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 
 ## Tech Stacks and Architecture
 
-![Backend Architecture](https://user-images.githubusercontent.com/29995663/58571234-ec5adc80-826b-11e9-8c5b-81d8008e00a0.png)
+![Backend Architecture](https://user-images.githubusercontent.com/29995663/60058795-61f78280-971c-11e9-88d6-dff4fcecbe15.png)
 
 * Designed **RESTful APIs** for the client to communicate with the Backend service.
 * Built real-time multi-user radio station by **Socket.IO**.
@@ -38,6 +38,7 @@ Demo - Radio master (left screen) broadcast content to client(right screen) sync
 * Used **ORM** (Sequelize) design to enhance the readability of code and also prevent SQL injection.
 * Stored users' head shot and video snapshot in **AWS S3**  for reducing storage costs.
 * Used **AWS CloudFront** CDN to cache user's head shot and post snapshot for decreasing loading latency.
+* Used **AWS Lambda** with **Amazon S3** to fullfill serverless image resizing service.
 * Used **Nginx** for reverse Proxy server 
 * Third-Party APIs:
     1. Supports Facebook / Google Login

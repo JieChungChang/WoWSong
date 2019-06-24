@@ -101,14 +101,6 @@ router.post('/addView', (req, res) => {
             res.send({result: false, message: 'Don\'t have view token!'});
         } else {
             if (addViewTime > rdbResult) {
-                // db.posts.update({view_times: db.sequelize.literal('`view_times` + 1')}, {where: {id: post_id}})
-                // .then((updateResult)=> {
-                //     console.log('Update Result:');
-                //     console.log(updateResult[0]);
-                //     res.cookie('view_token', '');
-                //     res.send({result: true});
-                // });
-
                 db.posts.findByPk(post_id)
                 .then(function(post) {
                     return post.increment('view_times', {by: 1});
@@ -122,7 +114,15 @@ router.post('/addView', (req, res) => {
                 .catch((err) => {
                     res.send({result: false, message: 'rollback'});
                 });
-
+            // // 2019/06/25 for atomic command testing
+            // db.posts.update({view_times: db.sequelize.literal('`view_times` + 1')}, {where: {id: post_id}})
+            // .then((updateResult)=> {
+            //     console.log('Update Result:');
+            //     console.log(updateResult[0]);
+            //     res.cookie('view_token', '');
+            //     res.send({result: true});
+            // });
+            // // 2019/06/25 for transaction remove testing
             //     db.sequelize.transaction((t) => {
             //         // chain all your queries here. make sure you return them.
             //         return db.posts.findByPk(post_id, {transaction: t})
@@ -142,8 +142,8 @@ router.post('/addView', (req, res) => {
             //         // err is whatever rejected the promise chain returned to the transaction callback
             //         res.send({result: false, message: 'rollback'});
             //     });
-            // } else {
-            //     res.send({result: false, message: 'Haven\'t seen enough time in this vedio!'});
+            } else {
+                res.send({result: false, message: 'Haven\'t seen enough time in this vedio!'});
             }
         }
     });
