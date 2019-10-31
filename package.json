@@ -17,7 +17,7 @@
     "nodemailer": "^6.0.0",
     "redis": "^2.8.0",
     "request": "^2.88.0",
-    "sequelize": "^5.3.3",
+    "sequelize": "^5.15.1",
     "socket.io": "^2.2.0"
   },
   "devDependencies": {
