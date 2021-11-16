@@ -4,7 +4,7 @@
   "description": "AppWorks School personal project obeobeko. Clone from https://www.obeobeko.com",
   "main": "index.js",
   "dependencies": {
-    "aws-sdk": "^2.438.0",
+    "aws-sdk": "^2.814.0",
     "cookie-parser": "^1.4.4",
     "crypto": "^1.0.1",
     "ejs": "^2.6.1",
